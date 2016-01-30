@@ -1,7 +1,6 @@
 {
   "name": "webgpio",
   "description": "WebGPIO API polyfill",
-  "main": "dist/webgpio.min.js",
   "authors": [
     "club-wot"
   ],
@@ -12,11 +11,13 @@
   ],
   "homepage": "https://github.com/club-wot/WebGPIO",
   "moduleType": [],
+  "main": "dist/webgpio.min.js",
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components",
     "test",
-    "tests"
+    "gulp",
+    "src",
+    "gulpfile.babel.js"
   ]
 }
