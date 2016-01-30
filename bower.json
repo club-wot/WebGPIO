@@ -1,0 +1,22 @@
+{
+  "name": "webgpio",
+  "description": "WebGPIO API polyfill",
+  "main": "dist/webgpio.min.js",
+  "authors": [
+    "club-wot"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "CHIRIMEN",
+    "webgpio"
+  ],
+  "homepage": "https://github.com/club-wot/WebGPIO",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
