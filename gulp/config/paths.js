@@ -15,6 +15,10 @@ const PATHS = {
     src: [
       `${ROOT_DIRS.src}/**/(*spec|*mock).js`,
     ],
+    karma: `${ROOT_DIRS.root}/**/(*spec|*mock).js`,
+  },
+  report: {
+    coverage: `${ROOT_DIRS.report}/coverage`,
   },
 };
 

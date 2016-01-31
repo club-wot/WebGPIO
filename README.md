@@ -1,4 +1,4 @@
-# WebGPIO
+# WebGPIO [![Build Status](https://travis-ci.org/club-wot/WebGPIO.svg?branch=master)](https://travis-ci.org/club-wot/WebGPIO)
 
 WebGPIO API polyfill (Chirimen dedicated)
 
@@ -35,6 +35,18 @@ In the following command, concatenated file is output to the `./dist` directory.
 ```sh
 gulp build
 ```
+
+### test
+
+```sh
+# libe watch test
+gulp dev
+
+# single run testing
+gulp test
+
+```
+
 
 ## Contributing
 
