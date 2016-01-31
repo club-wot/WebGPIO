@@ -6,5 +6,5 @@ gulp.task('build', cb => runSequence(
   'clean',
   'test',
   'compless',
-  cb,
+  cb
 ));

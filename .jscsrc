@@ -2,5 +2,9 @@
     "preset": "airbnb",
     "requireCurlyBraces": null,
     "validateIndentation": 2,
-    "esnext": false
+    "esnext": false,
+    "requireSpacesInFunctionExpression": null,
+    "requireSpacesInFunctionDeclaration": null,
+    "disallowSpacesInFunctionDeclaration": null,
+    "requireSpacesInsideParentheses": null
 }

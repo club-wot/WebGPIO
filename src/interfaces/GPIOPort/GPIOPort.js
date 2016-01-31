@@ -1,11 +1,11 @@
 // document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPort-interface
 
-(function() {
+(function () {
   'use strict';
 
   if (!window.GPIOPort) {
-    window.GPIOPort = function GPIOPort(portNumber) {
+    window.GPIOPort = function (portNumber) {
       this.init(portNumber);
     };
 
@@ -13,7 +13,7 @@
     * The GPIOPort interface represents a GPIO port assigned to a physical GPIO pin.
     **/
     GPIOPort.prototype = {
-      init: function(portNumber) {
+      init: function (portNumber) {
 
         /**
         * The portNumber attribute must return the GPIO port number assigned to the GPIOPort object.
@@ -71,7 +71,7 @@
       *     Then call resolver's reject(value) method with error as value argument.
       * @todo: SecurityError implementation
       **/
-      export: function(direction) {
+      export: function (direction) {
         return new Promise(exportGPIO)
           .then(sucessHandler)
           .catch(errorHandler);
@@ -88,7 +88,7 @@
             navigator.mozGpio.setDirection(this.portNumber, direction === 'out');
             directFnc();
             resolve();
-          }else{
+          }else {
             reject(new Error('InvalidAccessError'));
           }
         };
@@ -96,11 +96,12 @@
         var sucessHandler = event=> {
           this.direction = direction;
           this.exported = true;
+
           // @todo set name
           // this.pinName = '';
           // this.portName = '';
           return event;
-        }
+        };
 
         var errorHandler = error=> {
           this.direction = '';
@@ -108,24 +109,24 @@
           this.pinName = '';
           this.portName = '';
           return Promise.reject(error);
-        }
+        };
       },
 
       /**
       * The unexport() method deactivates	the related GPIO port. When the unexport() method is invoked, the user agent must run the steps as follows:
       * @todo: During implementation
       **/
-      unexport: function(direction) {},
+      unexport: function (direction) {},
 
       /**
       * The read() method reads the value from the related GPIO port. When the read() method is invoked, the user agent must run the steps as follows:
       **/
-      read: function() {
+      read: function () {
         return new Promise(readGPIO);
 
         var readGPIO = (resolve, reject)=> {
           if (this.exported) {
-            if (this.direction !== 'in'){
+            if (this.direction !== 'in') {
               reject(new Error('OperationError'));
             }
 
@@ -141,7 +142,7 @@
       * The write() method writes the value passed as the first argument to the related GPIO port.
       * The value must be numeric 0 or 1. When the write() method is invoked, the user agent must run the steps as follows:
       **/
-      write: function(value) {
+      write: function (value) {
         return new Promise(writeGPIO);
 
         var writeGPIO = (resolve, reject)=> {
@@ -174,9 +175,9 @@
       **/
       onchange:null,
 
-      checkValue:function(port) {
+      checkValue:function (port) {
         port.read().then(
-          function(value) {
+          function (value) {
             if (port.value != null) {
               if (parseInt(value) != parseInt(port.value)) {
                 if (typeof (port.onchange) === 'function') {
@@ -190,7 +191,7 @@
             port.value = value;
           },
 
-          function() {
+          function () {
             console.log('check value error');
           }
         );
@@ -200,18 +201,18 @@
       /**
       * @deprecated
       **/
-      setDirection: function(direction) {
+      setDirection: function (direction) {
         return GPIOPort.export(direction);
       },
 
-      isInput: function() {
+      isInput: function () {
         return this.direction === 'in';
       },
 
       /**
       * @private
       **/
-      __checkValue(port) {
+      __checkValue: function (port) {
         port.read()
           .then(value => {
             if (parseInt(value) != parseInt(port.value)) {
@@ -222,6 +223,7 @@
                 console.log('port.onchange is not a function.');
               }
             }
+
             port.value = value;
           }).catch(e=> Promise.reject(new Error('check value error')));
       },

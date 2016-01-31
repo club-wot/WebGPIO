@@ -1,15 +1,15 @@
 // document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
 
-(function() {
+(function () {
   'use strict';
   if (!window.GPIOAccess) {
-    window.GPIOAccess = function GPIOAccess(port) {
+    window.GPIOAccess = function (port) {
       this.init(port);
     };
 
     GPIOAccess.prototype = {
-      init: function(port) {
+      init: function (port) {
         this.ports = new GPIOPortMap();
 
         navigator.mozGpio.export(port);  //PWM

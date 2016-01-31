@@ -1,23 +1,23 @@
-describe('GPIOPort',() => {
+describe('GPIOPort', () => {
   describe('instance', () => {
     it('create', () => {
       expect(new GPIOPort(100)).not.toBeUndefined();
     });
   });
 
-  describe('export', ()=>{
+  describe('export', ()=> {
     it('spec...');
   });
-  describe('unexport', ()=>{
+  describe('unexport', ()=> {
     it('spec...');
   });
-  describe('read', ()=>{
+  describe('read', ()=> {
     it('spec...');
   });
-  describe('write', ()=>{
+  describe('write', ()=> {
     it('spec...');
   });
-  describe('onchange', ()=>{
+  describe('onchange', ()=> {
     it('spec...');
   });
 });

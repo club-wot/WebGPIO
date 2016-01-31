@@ -40,7 +40,10 @@ gulp build
 
 ```sh
 # libe watch test
-gulp develop
+gulp dev
+
+# single run testing
+gulp test
 
 ```
 
