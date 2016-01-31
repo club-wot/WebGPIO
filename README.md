@@ -1,4 +1,4 @@
-# WebGPIO [![Build Status](https://travis-ci.org/club-wot/WebGPIO.svg?branch=master)](https://travis-ci.org/club-wot/WebGPIO)
+# WebGPIO [![Build Status](https://travis-ci.org/club-wot/WebGPIO.svg?branch=master)](https://travis-ci.org/club-wot/WebGPIO) [![Dependency Status](https://gemnasium.com/club-wot/WebGPIO.svg)](https://gemnasium.com/club-wot/WebGPIO)
 
 WebGPIO API polyfill (Chirimen dedicated)
 
