@@ -77,7 +77,7 @@
           .catch(errorHandler);
 
         var directMap = {
-          in: ()=> this._timer = setInterval(()=> _checkValue(this), this._interval),
+          in: ()=> this._timer = setInterval(()=> this.__checkValue(this), this._interval),
           out: ()=> this._timer ? clearInterval(this._timer) : 0,
         };
 
