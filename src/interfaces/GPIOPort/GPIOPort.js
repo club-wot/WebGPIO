@@ -65,20 +65,23 @@
       *   5. If direction is neither "in" nor "out", jump to the step labeled failure below.
       *   6. Activate the related GPIO port in the specified direction mode ("in" or "out"). If succeeded, set the exported attribute to true, then jump to the step labeled success below. Otherwise, jump to the step labeled failure below.
       *   7. success: Call resolver's accept() method without any argument. Abort these steps.
-      *   8. failure: Let error be a new DOMExceptions. This must be of type "InvalidAccessError" if direction was invalid (i.e. neither "in" nor "out"), "SecurityError" if this operation was denied by the operating system because of some kind of security reason, "OperationError" if this operation was failed because of any reasons other than security reason. Then call resolver's reject(value) method with error as value argument.
+      *   8. failure: Let error be a new DOMExceptions. This must be of type "InvalidAccessError" if direction was invalid (i.e. neither "in" nor "out"),
+      *     "SecurityError" if this operation was denied by the operating system because of some kind of security reason,
+      *     "OperationError" if this operation was failed because of any reasons other than security reason.
+      *     Then call resolver's reject(value) method with error as value argument.
       * @todo: SecurityError implementation
       **/
       export: function(direction) {
-        return new Promise(GpioExport)
+        return new Promise(exportGPIO)
           .then(sucessHandler)
-          .catch(errorHandler):
+          .catch(errorHandler);
 
         var directMap = {
           in: ()=> this._timer = setInterval(()=> _checkValue(this), this._interval),
           out: ()=> this._timer ? clearInterval(this._timer) : 0,
         };
 
-        var GpioExport = (resolve, reject)=> {
+        var exportGPIO = (resolve, reject)=> {
           var directFnc = directMap[direction];
 
           if (directFnc) {
@@ -116,32 +119,50 @@
 
       /**
       * The read() method reads the value from the related GPIO port. When the read() method is invoked, the user agent must run the steps as follows:
-      * @todo: During implementation
       **/
       read: function() {
-        return new Promise(function(resolve, reject) {
-          if (this.isInput()) {
+        return new Promise(readGPIO);
+
+        var readGPIO = (resolve, reject)=> {
+          if (this.exported) {
+            if (this.direction !== 'in'){
+              reject(new Error('OperationError'));
+            }
+
             resolve(navigator.mozGpio.getValue(this.portNumber));
           } else {
-            reject({ message:'invalid direction' });
+
+            reject(new Error('InvalidAccessError'));
           }
-        }.bind(this));
+        };
       },
 
       /**
       * The write() method writes the value passed as the first argument to the related GPIO port.
       * The value must be numeric 0 or 1. When the write() method is invoked, the user agent must run the steps as follows:
-      * @todo: During implementation
       **/
       write: function(value) {
-        return new Promise(function(resolve, reject) {
-          if (this.isInput()) {
-            reject({ message:'invalid direction' });
-          } else {
+        return new Promise(writeGPIO);
+
+        var writeGPIO = (resolve, reject)=> {
+          if (this.exported) {
+            if (this.direction !== 'out') {
+              reject(new Error('OperationError'));
+            }
+
             navigator.mozGpio.setValue(this.portNumber, value);
-            resolve(value);
+
+            if (value === 0 || value === 1) {
+              this.value = value;
+              resolve(this.value);
+            } else {
+              reject(new Error('OperationError'));
+            }
+          } else {
+
+            reject(new Error('InvalidAccessError'));
           }
-        }.bind(this));
+        };
       },
 
       /**
@@ -186,25 +207,24 @@
       isInput: function() {
         return this.direction === 'in';
       },
-    };
 
-    /**
-    *
-    * @private
-    **/
-    function _checkValue(port) {
-      port.read()
-        .then(value => {
-          if (parseInt(value) != parseInt(port.value)) {
-            if (typeof (port.onchange) === 'function') {
-              // fire GPIOChangeEvent
-              port.onchange(value);
-            }else {
-              console.log('port.onchange is not a function.');
+      /**
+      * @private
+      **/
+      __checkValue(port) {
+        port.read()
+          .then(value => {
+            if (parseInt(value) != parseInt(port.value)) {
+              if (typeof (port.onchange) === 'function') {
+                // fire GPIOChangeEvent
+                port.onchange(value);
+              }else {
+                console.log('port.onchange is not a function.');
+              }
             }
-          }
-          port.value = value;
-        }).catch(e=> Promise.reject(new Error('check value error')));
+            port.value = value;
+          }).catch(e=> Promise.reject(new Error('check value error')));
+      },
     };
   }
 })();

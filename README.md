@@ -36,6 +36,15 @@ In the following command, concatenated file is output to the `./dist` directory.
 gulp build
 ```
 
+### test
+
+```sh
+# libe watch test
+gulp develop
+
+```
+
+
 ## Contributing
 
  1. Fork it!
