@@ -39,7 +39,7 @@ gulp build
 ### test
 
 ```sh
-# libe watch test
+# live watch test
 gulp dev
 
 # single run testing
