@@ -60,7 +60,6 @@ describe('GPIOPort', () => {
     describe('failure', ()=>{
       it('direction of undefined', done=> {
         port.export(void 0)
-          .then(e=> expect('NOT').toBe('MATCH'))
           .catch(e=> {
             expect(e).toEqual(new Error('InvalidAccessError'));
             expect(port.exported).toBe(false);
@@ -70,16 +69,122 @@ describe('GPIOPort', () => {
       });
     });
   });
-  describe('unexport', ()=> {
-    it('spec...');
-  });
+  xdescribe('unexport');
+
   describe('read', ()=> {
-    it('spec...');
+    beforeEach(done=> port.export('in').then(done));
+    describe('sucess', ()=>{
+      it('Call resolver accept(value) method with port value as value argument. Abort these steps', done=>{
+        navigator.mozGpio.getValue = jasmine.createSpy().and.returnValue(1);
+        port.read()
+          .then(result=> {
+            expect(result).toBe(1);
+            expect(navigator.mozGpio.getValue).toHaveBeenCalled();
+            expect(navigator.mozGpio.getValue).toHaveBeenCalledWith(100);
+            done();
+          });
+      });
+    });
+
+    describe('failure', ()=>{
+      it('if exported false to the InvalidAccessError', done=> {
+        port.exported = false;
+        port.read()
+          .catch(e=> {
+            expect(e).toEqual(new Error('InvalidAccessError'));
+            done();
+          });
+      });
+      it('if direction not in to the OperationError', done=> {
+        port.exported = true;
+        port.direction = 'out';
+        port.read()
+          .catch(e=> {
+            expect(e).toEqual(new Error('OperationError'));
+            done();
+          })
+      });
+    });
   });
   describe('write', ()=> {
-    it('spec...');
+    beforeEach(done=> port.export('out').then(done));
+    describe('sucess', ()=> {
+      it('Call resolver accept(value) method with port value as value argument. Abort these steps', done=>{
+        navigator.mozGpio.setValue = jasmine.createSpy('setValue');
+        port.write(1)
+          .then(result=> {
+            expect(result).toBe(1);
+            expect(navigator.mozGpio.setValue).toHaveBeenCalled();
+            expect(navigator.mozGpio.setValue).toHaveBeenCalledWith(100, 1);
+            done();
+          });
+      });
+    });
+    describe('failure', ()=> {
+      it('if exported false to the InvalidAccessError', done=>{
+        port.exported = false;
+        port.write(1)
+          .catch(e=> {
+            expect(e).toEqual(new Error('InvalidAccessError'));
+            done();
+          })
+      });
+      it('if direction out to the OperationError', done=>{
+        port.direction = 'in';
+        port.write(1)
+          .catch(e=> {
+            expect(e).toEqual(new Error('OperationError'));
+            done();
+          })
+      });
+      it('if argment value not ROW or HIGH to the OperationError', done=>{
+        port.write(-1)
+          .catch(e=> {
+            expect(e).toEqual(new Error('OperationError'));
+            done();
+          })
+      });
+    });
   });
   describe('onchange', ()=> {
     it('spec...');
+  });
+  describe('== private method ==', ()=> {
+    describe('__checkValue(onchange event impliments)', ()=>{
+      beforeEach(()=>{
+        navigator.mozGpio.getValue = jasmine.createSpy().and.returnValue(1);
+        port.onchange = jasmine.createSpy('onchange');
+        port.exported = true;
+        port.direction = 'in';
+      });
+
+      it('If firing the event is there value is different', done=> {
+        port.value = 0;
+        port.__checkValue(port)
+          .then(()=>{
+            expect(port.onchange).toHaveBeenCalled();
+            expect(port.onchange).toHaveBeenCalledWith(port);
+            done();
+          });
+      });
+
+      it('Value does not ignite it the same',done=> {
+          port.value = 1;
+          port.__checkValue(port)
+            .then(()=>{
+              expect(port.onchange).not.toHaveBeenCalled();
+              done();
+            });
+      });
+
+      it('If the event is not set', done=> {
+          port.onchange = void 0;
+          port.value = 0;
+          port.__checkValue(port)
+            .then(()=>{
+              done();
+            });
+      });
+    });
   });
 });
