@@ -4,6 +4,7 @@
 (function () {
   'use strict';
 
+  /* istanbul ignore else */
   if (!window.GPIOPort) {
     window.GPIOPort = function (portNumber) {
       this.init(portNumber);
@@ -72,9 +73,6 @@
       * @todo: SecurityError implementation
       **/
       export: function (direction) {
-        return new Promise(exportGPIO)
-          .then(sucessHandler)
-          .catch(errorHandler);
 
         var directMap = {
           in: ()=> this._timer = setInterval(()=> this.__checkValue(this), this._interval),
@@ -110,6 +108,10 @@
           this.portName = '';
           return Promise.reject(error);
         };
+
+        return new Promise(exportGPIO)
+          .then(sucessHandler)
+          .catch(errorHandler);
       },
 
       /**
@@ -122,7 +124,6 @@
       * The read() method reads the value from the related GPIO port. When the read() method is invoked, the user agent must run the steps as follows:
       **/
       read: function () {
-        return new Promise(readGPIO);
 
         var readGPIO = (resolve, reject)=> {
           if (this.exported) {
@@ -136,6 +137,7 @@
             reject(new Error('InvalidAccessError'));
           }
         };
+        return new Promise(readGPIO);
       },
 
       /**
@@ -143,7 +145,6 @@
       * The value must be numeric 0 or 1. When the write() method is invoked, the user agent must run the steps as follows:
       **/
       write: function (value) {
-        return new Promise(writeGPIO);
 
         var writeGPIO = (resolve, reject)=> {
           if (this.exported) {
@@ -164,6 +165,7 @@
             reject(new Error('InvalidAccessError'));
           }
         };
+        return new Promise(writeGPIO);
       },
 
       /**
