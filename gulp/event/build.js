@@ -2,7 +2,7 @@ const gulp = require('gulp');
 const runSequence = require('run-sequence');
 
 gulp.task('build', cb => runSequence(
-  ['jscs', 'jscs:gulp'],
+  ['jscs:fix', 'jscs:gulpfix'],
   'clean',
   'test',
   'compless',

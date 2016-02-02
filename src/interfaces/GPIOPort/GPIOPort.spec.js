@@ -17,11 +17,11 @@ describe('GPIOPort', () => {
   describe('export', ()=> {
 
     describe('success', ()=> {
-      beforeEach(()=>{
+      beforeEach(()=> {
         navigator.mozGpio.setDirection =  jasmine.createSpy('setDirection');
         port.__checkValue =  jasmine.createSpy('__checkValue');
-      })
-      it('direction of out',done=>{
+      });
+      it('direction of out', done=> {
         port.export('out')
           .then(()=> {
             expect(port.exported).toBe(true);
@@ -31,9 +31,9 @@ describe('GPIOPort', () => {
           })
           .then(done)
           .catch(e=> expect('NOT').toBe('MATCH'));
-        });
+      });
 
-      it('direction of in',done=> {
+      it('direction of in', done=> {
         jasmine.clock().install();
         port.export('in')
           .then(()=> {
@@ -48,16 +48,16 @@ describe('GPIOPort', () => {
           .then(done)
           .catch(e=> expect('NOT').toBe('MATCH'));
       });
-      it ('setInterval clear', done=>{
-          port._timer = 1;
-          port.export('out')
-            .then(()=> expect(port._timer).toBe(1))
-            .then(done)
-            .catch(e=> expect('NOT').toBe('MATCH'));
-        });
+      it('setInterval clear', done=> {
+        port._timer = 1;
+        port.export('out')
+          .then(()=> expect(port._timer).toBe(1))
+          .then(done)
+          .catch(e=> expect('NOT').toBe('MATCH'));
+      });
     });
 
-    describe('failure', ()=>{
+    describe('failure', ()=> {
       it('direction of undefined', done=> {
         port.export(void 0)
           .catch(e=> {
@@ -73,8 +73,8 @@ describe('GPIOPort', () => {
 
   describe('read', ()=> {
     beforeEach(done=> port.export('in').then(done));
-    describe('sucess', ()=>{
-      it('Call resolver accept(value) method with port value as value argument. Abort these steps', done=>{
+    describe('sucess', ()=> {
+      it('Call resolver accept(value) method with port value as value argument. Abort these steps', done=> {
         navigator.mozGpio.getValue = jasmine.createSpy().and.returnValue(1);
         port.read()
           .then(result=> {
@@ -86,7 +86,7 @@ describe('GPIOPort', () => {
       });
     });
 
-    describe('failure', ()=>{
+    describe('failure', ()=> {
       it('if exported false to the InvalidAccessError', done=> {
         port.exported = false;
         port.read()
@@ -102,14 +102,14 @@ describe('GPIOPort', () => {
           .catch(e=> {
             expect(e).toEqual(new Error('OperationError'));
             done();
-          })
+          });
       });
     });
   });
   describe('write', ()=> {
     beforeEach(done=> port.export('out').then(done));
     describe('sucess', ()=> {
-      it('Call resolver accept(value) method with port value as value argument. Abort these steps', done=>{
+      it('Call resolver accept(value) method with port value as value argument. Abort these steps', done=> {
         navigator.mozGpio.setValue = jasmine.createSpy('setValue');
         port.write(1)
           .then(result=> {
@@ -121,28 +121,28 @@ describe('GPIOPort', () => {
       });
     });
     describe('failure', ()=> {
-      it('if exported false to the InvalidAccessError', done=>{
+      it('if exported false to the InvalidAccessError', done=> {
         port.exported = false;
         port.write(1)
           .catch(e=> {
             expect(e).toEqual(new Error('InvalidAccessError'));
             done();
-          })
+          });
       });
-      it('if direction out to the OperationError', done=>{
+      it('if direction out to the OperationError', done=> {
         port.direction = 'in';
         port.write(1)
           .catch(e=> {
             expect(e).toEqual(new Error('OperationError'));
             done();
-          })
+          });
       });
-      it('if argment value not ROW or HIGH to the OperationError', done=>{
+      it('if argment value not ROW or HIGH to the OperationError', done=> {
         port.write(-1)
           .catch(e=> {
             expect(e).toEqual(new Error('OperationError'));
             done();
-          })
+          });
       });
     });
   });
@@ -150,8 +150,8 @@ describe('GPIOPort', () => {
     it('spec...');
   });
   describe('== private method ==', ()=> {
-    describe('__checkValue(onchange event impliments)', ()=>{
-      beforeEach(()=>{
+    describe('__checkValue(onchange event impliments)', ()=> {
+      beforeEach(()=> {
         navigator.mozGpio.getValue = jasmine.createSpy().and.returnValue(1);
         port.onchange = jasmine.createSpy('onchange');
         port.exported = true;
@@ -161,27 +161,27 @@ describe('GPIOPort', () => {
       it('If firing the event is there value is different', done=> {
         port.value = 0;
         port.__checkValue(port)
-          .then(()=>{
+          .then(()=> {
             expect(port.onchange).toHaveBeenCalled();
             expect(port.onchange).toHaveBeenCalledWith(port);
             done();
           });
       });
 
-      it('Value does not ignite it the same',done=> {
-          port.value = 1;
-          port.__checkValue(port)
-            .then(()=>{
+      it('Value does not ignite it the same', done=> {
+        port.value = 1;
+        port.__checkValue(port)
+            .then(()=> {
               expect(port.onchange).not.toHaveBeenCalled();
               done();
             });
       });
 
       it('If the event is not set', done=> {
-          port.onchange = void 0;
-          port.value = 0;
-          port.__checkValue(port)
-            .then(()=>{
+        port.onchange = void 0;
+        port.value = 0;
+        port.__checkValue(port)
+            .then(()=> {
               done();
             });
       });

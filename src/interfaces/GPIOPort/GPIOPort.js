@@ -18,7 +18,7 @@
     const IO = {
       ROW: 0,
       HIGH: 1,
-    }
+    };
 
     /**
     * The GPIOPort interface represents a GPIO port assigned to a physical GPIO pin.
@@ -136,14 +136,15 @@
       read: function () {
 
         var readGPIO = (resolve, reject)=> {
-          if ( !this.exported) {
+          if (!this.exported) {
             reject(new Error('InvalidAccessError'));
-          } else if ( !this.__isInput()) {
-            reject(new Error('OperationError'))
+          } else if (!this.__isInput()) {
+            reject(new Error('OperationError'));
           }
 
           resolve(navigator.mozGpio.getValue(this.portNumber));
         };
+
         return new Promise(readGPIO);
       },
 
@@ -154,17 +155,19 @@
       write: function (value) {
 
         var writeGPIO = (resolve, reject)=> {
-          if ( !this.exported) {
+          if (!this.exported) {
             reject(new Error('InvalidAccessError'));
-          } else if ( !this.__isOutput()) {
+          } else if (!this.__isOutput()) {
             reject(new Error('OperationError'));
           } else if (value !== IO.ROW && value !== IO.HIGH) {
             reject(new Error('OperationError'));
           }
+
           this.value = value;
           navigator.mozGpio.setValue(this.portNumber, this.value);
           resolve(this.value);
         };
+
         return new Promise(writeGPIO);
       },
 
@@ -204,13 +207,13 @@
         return port.read()
           .then(value => {
             if (parseInt(value) != parseInt(port.value)) {
-              console.log('port.onchange',port.onchange);
               if (typeof (port.onchange) === 'function') {
                 // fire GPIOChangeEvent
                 port.onchange(port);
               }else {
                 console.log('port.onchange is not a function.');
               }
+
               port.value = value;
             }
           });
