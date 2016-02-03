@@ -1,13 +1,9 @@
 (function () {
   'use strict';
-
+  /* istanbul ignore else */
   if (!navigator.requestGPIOAccess) {
-    navigator.requestGPIOAccess = function (port) {
-      return new Promise(function (resolve, reject) {
-
-        var gpioAccess = new GPIOAccess(port);
-        resolve(gpioAccess);
-      });
+    navigator.requestGPIOAccess = function () {
+      return new Promise(resolve=> resolve(new GPIOAccess()));
     };
   }
 })();

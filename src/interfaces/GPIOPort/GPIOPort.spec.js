@@ -1,9 +1,14 @@
 describe('GPIOPort', () => {
   var port;
-  beforeEach(()=> port = new GPIOPort(100));
+  beforeEach(()=> {
+    navigator.mozGpio.export = jasmine.createSpy();
+    port = new GPIOPort(100);
+  });
   describe('instance', () => {
     it('create', () => {
       expect(port).not.toBeUndefined();
+      expect(navigator.mozGpio.export).toHaveBeenCalled();
+      expect(navigator.mozGpio.export).toHaveBeenCalledWith(100);
     });
   });
   describe('propaty(default)', () => {

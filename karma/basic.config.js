@@ -19,7 +19,7 @@ const CONFIG = {
     reporters:  [
       { type: 'html', subdir: 'html' },
       { type: 'lcov', subdir: 'lcov' },
-      { type: 'text-summary', subdir: '.' },
+      { type: 'text-summary' },
     ]
   },
   port: config.ports.karma,

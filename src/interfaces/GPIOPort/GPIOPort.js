@@ -26,6 +26,8 @@
     GPIOPort.prototype = {
       init: function (portNumber) {
 
+        navigator.mozGpio.export(portNumber);
+
         /**
         * The portNumber attribute must return the GPIO port number assigned to the GPIOPort object.
         * port番号の属性は gpio portオブジェクトに割り当てられたgpio prot番号を返します。
@@ -134,18 +136,20 @@
       * The read() method reads the value from the related GPIO port. When the read() method is invoked, the user agent must run the steps as follows:
       **/
       read: function () {
-
-        var readGPIO = (resolve, reject)=> {
+        var validation = (resolve, reject)=> {
           if (!this.exported) {
             reject(new Error('InvalidAccessError'));
           } else if (!this.__isInput()) {
             reject(new Error('OperationError'));
           }
 
-          resolve(navigator.mozGpio.getValue(this.portNumber));
+          resolve();
         };
 
-        return new Promise(readGPIO);
+        var readGPIO = ()=> navigator.mozGpio.getValue(this.portNumber);
+
+        return new Promise(validation)
+          .then(readGPIO);
       },
 
       /**
@@ -154,7 +158,7 @@
       **/
       write: function (value) {
 
-        var writeGPIO = (resolve, reject)=> {
+        var validation = (resolve, reject)=> {
           if (!this.exported) {
             reject(new Error('InvalidAccessError'));
           } else if (!this.__isOutput()) {
@@ -163,12 +167,17 @@
             reject(new Error('OperationError'));
           }
 
-          this.value = value;
-          navigator.mozGpio.setValue(this.portNumber, this.value);
-          resolve(this.value);
+          resolve();
         };
 
-        return new Promise(writeGPIO);
+        var writeGPIO = ()=> {
+          this.value = value;
+          navigator.mozGpio.setValue(this.portNumber, this.value);
+          return this.value;
+        };
+
+        return new Promise(validation)
+          .then(writeGPIO);
       },
 
       /**
