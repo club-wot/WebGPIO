@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 (function () {
   'use strict';
 
@@ -10,7 +11,7 @@
     };
 
     navigator.mozGpio.setValue = function (portno, value) {
-      console.log('setValue(' + portno + ',' + value + ')');
+      //console.log('setValue(' + portno + ',' + value + ')');
     };
 
     navigator.mozGpio.getValue = function (portno) {
@@ -18,7 +19,7 @@
     };
 
     navigator.mozGpio.setDirection = function (portno, direction) {
-      console.log('setDirection(' + portno + ',' + direction + ')');
+      //console.log('setDirection(' + portno + ',' + direction + ')');
     };
 
     navigator.mozGpio.getDirection = function () {

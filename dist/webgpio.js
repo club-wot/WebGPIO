@@ -3,21 +3,71 @@
 
 (function () {
   'use strict';
+  /* istanbul ignore else */
   if (!window.GPIOAccess) {
     window.GPIOAccess = function (port) {
       this.init(port);
     };
 
+    // https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0
+    const CHIRIMEN_CONFIG = {
+      PORTS: {
+        CN1: [{
+          port: 256, }, {
+          port: 257, }, {
+          port: 283, }, {
+          port: 284, }, {
+          port: 196, }, {
+          port: 197, }, {
+          port: 198, }, {
+          port: 199, }, {
+          port: 244, }, {
+          port: 243, }, {
+          port: 246, }, {
+          port: 245, },],
+        CN2: [{
+          port: 163, }, {
+          port: 253, }, {
+          port: 252, }, {
+          port: 193, }, {
+          port: 192, }, {
+          port: 353, },],
+      },
+    };
+
     GPIOAccess.prototype = {
       init: function (port) {
         this.ports = new GPIOPortMap();
-
-        navigator.mozGpio.export(port);  //PWM
-
-        this.ports.set(port - 0, new GPIOPort(port));
-
-        console.log('size=' + this.ports.size);
+        var setPortMap = config=> this.ports.set(config.port, new GPIOPort(config.port));
+        /**
+         * @todo How to get the pin list?
+         ***/
+        CHIRIMEN_CONFIG.PORTS.CN1.forEach(setPortMap);
+        CHIRIMEN_CONFIG.PORTS.CN2.forEach(setPortMap);
       },
+
+      /**
+      * The ports attribute must return the GPIOPortMap object representing all of the GPIO ports available on the underlying operating system.
+      * @type {GPIOPortMap}
+      **/
+      ports: null,
+
+      /**
+      * Open issues: Is unexportAll necessary?
+      * @todo: During implementation
+      **/
+      unexportAll: null,
+
+      /**
+      * The onchange attribute is a event handler invoked when the value of one of the exported GPIO ports changes
+      * (i.e. the value changes from 1 to 0 or from 0 to 1). Whenever the event handler is to be invoked, the user agent must run the following steps:
+      *  1. Let port be the GPIOPort object.
+      *  2. Let port value be the value of the GPIO port corresponding to the GPIOPort.
+      *  3. Let event be a newly constructed GPIOChangeEvent, with the value attribute set to the port value, and the port attribute set to the port.
+      *  4. Fire an event named change at the GPIOAccess object, using the event as the event object.
+      * @todo: During implementation
+      **/
+      onchange: null,
     };
   }
 })();
@@ -51,6 +101,8 @@
     **/
     GPIOPort.prototype = {
       init: function (portNumber) {
+
+        navigator.mozGpio.export(portNumber);
 
         /**
         * The portNumber attribute must return the GPIO port number assigned to the GPIOPort object.
@@ -160,18 +212,20 @@
       * The read() method reads the value from the related GPIO port. When the read() method is invoked, the user agent must run the steps as follows:
       **/
       read: function () {
-
-        var readGPIO = (resolve, reject)=> {
+        var validation = (resolve, reject)=> {
           if (!this.exported) {
             reject(new Error('InvalidAccessError'));
           } else if (!this.__isInput()) {
             reject(new Error('OperationError'));
           }
 
-          resolve(navigator.mozGpio.getValue(this.portNumber));
+          resolve();
         };
 
-        return new Promise(readGPIO);
+        var readGPIO = ()=> navigator.mozGpio.getValue(this.portNumber);
+
+        return new Promise(validation)
+          .then(readGPIO);
       },
 
       /**
@@ -180,7 +234,7 @@
       **/
       write: function (value) {
 
-        var writeGPIO = (resolve, reject)=> {
+        var validation = (resolve, reject)=> {
           if (!this.exported) {
             reject(new Error('InvalidAccessError'));
           } else if (!this.__isOutput()) {
@@ -189,12 +243,17 @@
             reject(new Error('OperationError'));
           }
 
-          this.value = value;
-          navigator.mozGpio.setValue(this.portNumber, this.value);
-          resolve(this.value);
+          resolve();
         };
 
-        return new Promise(writeGPIO);
+        var writeGPIO = ()=> {
+          this.value = value;
+          navigator.mozGpio.setValue(this.portNumber, this.value);
+          return this.value;
+        };
+
+        return new Promise(validation)
+          .then(writeGPIO);
       },
 
       /**
@@ -248,30 +307,28 @@
   }
 })();
 
-(function () {
-  'use strict';
-
-  if (!navigator.requestGPIOAccess) {
-    navigator.requestGPIOAccess = function (port) {
-      return new Promise(function (resolve, reject) {
-
-        var gpioAccess = new GPIOAccess(port);
-        resolve(gpioAccess);
-      });
-    };
-  }
-})();
-
 // document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPortMap-interface
 
 (function () {
   'use strict';
+  /* istanbul ignore else */
   if (!window.GPIOPortMap) {
     window.GPIOPortMap = Map;
   }
 })();
 
+(function () {
+  'use strict';
+  /* istanbul ignore else */
+  if (!navigator.requestGPIOAccess) {
+    navigator.requestGPIOAccess = function () {
+      return new Promise(resolve=> resolve(new GPIOAccess()));
+    };
+  }
+})();
+
+/* istanbul ignore next */
 (function () {
   'use strict';
 
@@ -284,7 +341,7 @@
     };
 
     navigator.mozGpio.setValue = function (portno, value) {
-      console.log('setValue(' + portno + ',' + value + ')');
+      //console.log('setValue(' + portno + ',' + value + ')');
     };
 
     navigator.mozGpio.getValue = function (portno) {
@@ -292,7 +349,7 @@
     };
 
     navigator.mozGpio.setDirection = function (portno, direction) {
-      console.log('setDirection(' + portno + ',' + direction + ')');
+      //console.log('setDirection(' + portno + ',' + direction + ')');
     };
 
     navigator.mozGpio.getDirection = function () {

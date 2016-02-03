@@ -56,6 +56,10 @@ gulp test
  4. Push to the branch: git push origin my-new-feature
  5. Submit a pull request :D
 
+## Related Links
+
+ + [CHIRIMEN issues](https://github.com/MozOpenHard/CHIRIMEN/issues);
+
 ## License
 
  Copyright (c) 2016 club-wot team and other contributors

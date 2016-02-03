@@ -3,6 +3,7 @@
 
 (function () {
   'use strict';
+  /* istanbul ignore else */
   if (!window.GPIOPortMap) {
     window.GPIOPortMap = Map;
   }
