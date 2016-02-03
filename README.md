@@ -11,12 +11,12 @@ WebGPIO API polyfill (Chirimen dedicated)
 ### [SPEC](https://rawgit.com/browserobo/WebGPIO/master/index.html#example-getting-access)
 
 + interface
-  + [ ] [GPIOAccess](https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOAccess-interface)
+  + [x] [GPIOAccess](https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOAccess-interface)
   + [ ] [GPIOChangeEvent](https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOChangeEventInit-interface)
   + [ ] [GPIOChangeEventInit](https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOChangeEvent-interface)
   + [x] [GPIOPort](https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPort-interface)
   + [ ] [GPIOPortMap](https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPortMap-interface)
-  + [ ] [requestGPIOAccess](https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio)
+  + [x] [requestGPIOAccess](https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio)
 
 ## use WebGPIO polyfill
 
