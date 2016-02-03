@@ -1,4 +1,10 @@
-# WebGPIO [![Build Status](https://travis-ci.org/club-wot/WebGPIO.svg?branch=master)](https://travis-ci.org/club-wot/WebGPIO) [![Dependency Status](https://gemnasium.com/club-wot/WebGPIO.svg)](https://gemnasium.com/club-wot/WebGPIO)
+# WebGPIO
+
+|service|status|
+|:--:|:--:|
+| Build Status |[![Build Status](https://travis-ci.org/club-wot/WebGPIO.svg)](https://travis-ci.org/club-wot/WebGPIO) |
+| Dependency Status |[![Dependency Status](https://gemnasium.com/club-wot/WebGPIO.svg)](https://gemnasium.com/club-wot/WebGPIO)|
+| Code Covoiturage|[![CoverageStatus](https://coveralls.io/repos/github/club-wot/WebGPIO/badge.svg?branch=draft-20160125)](https://coveralls.io/github/club-wot/WebGPIO?branch=draft-20160125)|
 
 WebGPIO API polyfill (Chirimen dedicated)
 
