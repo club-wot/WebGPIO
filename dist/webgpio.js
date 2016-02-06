@@ -20,14 +20,14 @@ const CHIRIMEN_CONFIG = {
       port: 244, }, {
       port: 243, }, {
       port: 246, }, {
-      port: 245, }, ],
+      port: 245, },],
     CN2: [{
       port: 163, }, {
       port: 253, }, {
       port: 252, }, {
       port: 193, }, {
       port: 192, }, {
-      port: 353, }, ],
+      port: 353, },],
   },
 };
 

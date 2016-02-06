@@ -32,7 +32,57 @@ bower install --save webgpio-polyfill
 <script src="[bower_components path]/webgpio/dist/webgpio.min.js"></script>
 ```
 
-##### [examples(spec file link)](https://rawgit.com/browserobo/WebGPIO/master/index.html#example)
+### sample
+
+#### sample
+
+chirimen CN1.2pin (pullup) connected
+
+```html
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Test LED</title>
+        <script src="[bower_components path]/webgpio/dist/webgpio.min.js"></script>
+        <script src="./js/main.js"></script>
+    </head>
+    <body>
+        <h3 id="head"
+            style="color:red; text-align: center; font-size: 90px">TEST</h3>
+    </body>
+</html>
+```
+
+ + `./js/main.js`
+
+```javascript
+'use strict';
+
+window.addEventListener('load', function (){
+  var head = document.querySelector('#head');
+  navigator.requestGPIOAccess().then(
+    function(gpioAccess) {
+        console.log("GPIO ready!");
+        return gpioAccess;
+    }).then(gpio=>{
+      var port = gpio.ports.get(256);
+      var v = 0;
+      return port.export("out").then(()=>{
+        setInterval(function(){
+          v = v ? 0 : 1;
+          port.write(v);
+          head.style.color = v ? 'red' : 'green' ;
+        },500);
+      });
+  }).catch(error=>{
+    console.log("Failed to get GPIO access catch: " + error.message);
+  });
+}, false);
+```
+
+
+##### [spec examples(spec file link)](https://rawgit.com/browserobo/WebGPIO/master/index.html#example)
 
 ### build
 
