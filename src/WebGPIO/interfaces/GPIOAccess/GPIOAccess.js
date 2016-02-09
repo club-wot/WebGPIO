@@ -13,7 +13,7 @@ GPIOAccess.prototype = {
     /**
     * @todo How to get the pin list?
     ***/
-    Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).forEach(setPortMap)
+    Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).forEach(setPortMap);
   },
 
   /**

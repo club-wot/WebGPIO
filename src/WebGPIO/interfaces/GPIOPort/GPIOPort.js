@@ -92,6 +92,7 @@ GPIOPort.prototype = {
     var sucessHandler = event=> {
       this.direction = direction;
       this.exported = true;
+
       // console.log('PORT_CONFIG');
       // console.log(PORT_CONFIG[this._DEVICES].PORTS, this.portNumber);
       // console.log(PORT_CONFIG[this._DEVICES].PORTS[this.portNumber]);

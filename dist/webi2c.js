@@ -1,3 +1,10 @@
+(function(){/* istanbul ignore else */
+if (!navigator.requestI2CAccess) {
+  navigator.requestI2CAccess = function () {
+    return Promise.resolve({});
+  };
+}
+
 const PORT_CONFIG = {
   // https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0
   CHIRIMEN: {
@@ -23,3 +30,4 @@ const PORT_CONFIG = {
     },
   },
 };
+})()

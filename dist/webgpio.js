@@ -1,45 +1,29 @@
-(function(){// document
+(function(){const DIRECTION_MODE = {
+  IN: 'in',
+  OUT: 'out',
+};
+
+const IO = {
+  ROW: 0,
+  HIGH: 1,
+};
+
+// document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
 
 var GPIOAccess = function (port) {
   this.init(port);
 };
 
-// https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0
-const CHIRIMEN_CONFIG = {
-  PORTS: {
-    CN1: [{
-      port: 256, }, {
-      port: 257, }, {
-      port: 283, }, {
-      port: 284, }, {
-      port: 196, }, {
-      port: 197, }, {
-      port: 198, }, {
-      port: 199, }, {
-      port: 244, }, {
-      port: 243, }, {
-      port: 246, }, {
-      port: 245, },],
-    CN2: [{
-      port: 163, }, {
-      port: 253, }, {
-      port: 252, }, {
-      port: 193, }, {
-      port: 192, }, {
-      port: 353, },],
-  },
-};
-
 GPIOAccess.prototype = {
   init: function (port) {
     this.ports = new GPIOPortMap();
-    var setPortMap = config=> this.ports.set(config.port, new GPIOPort(config.port));
+    var convertToNumber = portStr => parseInt(portStr, 10);
+    var setPortMap = port=> this.ports.set(port, new GPIOPort(port));
     /**
-     * @todo How to get the pin list?
-     ***/
-    CHIRIMEN_CONFIG.PORTS.CN1.forEach(setPortMap);
-    CHIRIMEN_CONFIG.PORTS.CN2.forEach(setPortMap);
+    * @todo How to get the pin list?
+    ***/
+    Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).forEach(setPortMap);
   },
 
   /**
@@ -73,16 +57,6 @@ GPIOAccess.prototype = {
 
 var GPIOPort = function (portNumber) {
   this.init(portNumber);
-};
-
-const DIRECTION = {
-  IN: 'in',
-  OUT: 'out',
-};
-
-const IO = {
-  ROW: 0,
-  HIGH: 1,
 };
 
 /**
@@ -132,6 +106,7 @@ GPIOPort.prototype = {
     this._interval = 30;
     this.value = null;
     this._timer = null;
+    this._DEVICES = 'CHIRIMEN';
   },
 
   /**
@@ -160,7 +135,7 @@ GPIOPort.prototype = {
       var directFnc = directMap[direction];
 
       if (directFnc) {
-        navigator.mozGpio.setDirection(this.portNumber, direction === DIRECTION.OUT);
+        navigator.mozGpio.setDirection(this.portNumber, direction === DIRECTION_MODE.OUT);
         directFnc();
         resolve();
       }else {
@@ -172,9 +147,11 @@ GPIOPort.prototype = {
       this.direction = direction;
       this.exported = true;
 
-      // @todo set name
-      // this.pinName = '';
-      // this.portName = '';
+      // console.log('PORT_CONFIG');
+      // console.log(PORT_CONFIG[this._DEVICES].PORTS, this.portNumber);
+      // console.log(PORT_CONFIG[this._DEVICES].PORTS[this.portNumber]);
+      this.pinName = PORT_CONFIG[this._DEVICES].PORTS[this.portNumber].pinName;
+      this.portName = PORT_CONFIG[this._DEVICES].PORTS[this.portNumber].portName;
       return event;
     };
 
@@ -261,7 +238,7 @@ GPIOPort.prototype = {
   * @return {Boolean}
   **/
   __isInput: function () {
-    return this.direction === DIRECTION.IN;
+    return this.direction === DIRECTION_MODE.IN;
   },
 
   /**
@@ -269,7 +246,7 @@ GPIOPort.prototype = {
   * @return {Boolean}
   **/
   __isOutput: function () {
-    return this.direction === DIRECTION.OUT;
+    return this.direction === DIRECTION_MODE.OUT;
   },
 
   /**
@@ -306,29 +283,29 @@ if (!navigator.requestGPIOAccess) {
   };
 }
 
-/* istanbul ignore next */
-if (!navigator.mozGpio) {
-  navigator.mozGpio = new Object();
-  navigator.mozGpio.export = function (portno) {
-  };
-
-  navigator.mozGpio.unexport = function (portno) {
-  };
-
-  navigator.mozGpio.setValue = function (portno, value) {
-    //console.log('setValue(' + portno + ',' + value + ')');
-  };
-
-  navigator.mozGpio.getValue = function (portno) {
-    return portno;
-  };
-
-  navigator.mozGpio.setDirection = function (portno, direction) {
-    //console.log('setDirection(' + portno + ',' + direction + ')');
-  };
-
-  navigator.mozGpio.getDirection = function () {
-    return 'out';
-  };
-}
+const PORT_CONFIG = {
+  // https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0
+  CHIRIMEN: {
+    PORTS: {
+      256: { portName: 'CN1.I2C2_SDA', pinName: '2', },
+      257: { portName: 'CN1.I2C2_SCL', pinName: '3', },
+      283: { portName: 'CN1.UART3_RX', pinName: '4', },
+      284: { portName: 'CN1.UART3_TX', pinName: '5', },
+      196: { portName: 'CN1.SPI0_CS',  pinName: '7', },
+      197: { portName: 'CN1.SPI0_CLK', pinName: '8', },
+      198: { portName: 'CN1.SPI0_RX',  pinName: '9', },
+      199: { portName: 'CN1.SPI0_TX',  pinName: '10', },
+      244: { portName: 'CN1.SPI1_CS',  pinName: '11', },
+      243: { portName: 'CN1.SPI1_CLK', pinName: '12', },
+      246: { portName: 'CN1.SPI1_RX',  pinName: '13', },
+      245: { portName: 'CN1.SPI1_TX',  pinName: '14', },
+      163: { portName: 'CN2.PWM0',     pinName: '10', },
+      253: { portName: 'CN2.I2C0_SCL', pinName: '11', },
+      252: { portName: 'CN2.I2C0_SDA', pinName: '12', },
+      193: { portName: 'CN2.UART0_TX', pinName: '13', },
+      192: { portName: 'CN2.UART0_RX', pinName: '14', },
+      353: { portName: 'CN2.GPIO6_A1', pinName: '15', },
+    },
+  },
+};
 })()

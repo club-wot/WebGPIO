@@ -1,4 +1,4 @@
-# WebGPIO
+# WebGPIO and WebI2C polyfill
 
 |service|status|
 |:--|:--|
@@ -6,9 +6,9 @@
 | Dependency Status |[![Dependency Status](https://gemnasium.com/club-wot/WebGPIO.svg)](https://gemnasium.com/club-wot/WebGPIO)|
 | Code Covoiturage|[![Coverage Status](https://coveralls.io/repos/github/club-wot/WebGPIO/badge.svg?branch=draft-20160125)](https://coveralls.io/github/club-wot/WebGPIO?branch=draft-20160125)|
 
-WebGPIO API polyfill (Chirimen dedicated)
+WebGPIO and WebI2C API polyfill (Chirimen dedicated)
 
-### [SPEC](https://rawgit.com/browserobo/WebGPIO/master/index.html#example-getting-access)
+### [WebGPIO SPEC](https://rawgit.com/browserobo/WebGPIO/master/index.html#example-getting-access)
 
 + interface
   + [x] [GPIOAccess](https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOAccess-interface)
@@ -17,6 +17,15 @@ WebGPIO API polyfill (Chirimen dedicated)
   + [x] [GPIOPort](https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPort-interface)
   + [ ] [GPIOPortMap](https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPortMap-interface)
   + [x] [requestGPIOAccess](https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio)
+
+### [WebI2C SPEC](https://rawgit.com/browserobo/WebI2C/master/index.html)
+
++ interface
+  + requestI2CAccess
+  + I2CAccess
+  + I2CPortMap
+  + I2CPort
+  + I2CSlaveDevice
 
 ## use WebGPIO polyfill
 
