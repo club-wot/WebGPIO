@@ -34,7 +34,6 @@ describe('example', () => {
         expect(args.port.exported).toBe(true);
         expect(args.port.direction).toBe('in');
         expect(navigator.mozGpio.setDirection).toHaveBeenCalled();
-        expect(navigator.mozGpio.setDirection).toHaveBeenCalledWith(100, false);
       })
       .then(done)
       .catch(e=> expect(e.message).toBe('EXCEPTION'));

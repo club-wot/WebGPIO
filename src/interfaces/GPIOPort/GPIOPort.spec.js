@@ -2,17 +2,17 @@ describe('GPIOPort', () => {
   var port;
   beforeEach(()=> {
     navigator.mozGpio.export = jasmine.createSpy();
-    port = new GPIOPort(100);
+    port = new GPIOPort(256);
   });
   describe('instance', () => {
     it('create', () => {
       expect(port).not.toBeUndefined();
       expect(navigator.mozGpio.export).toHaveBeenCalled();
-      expect(navigator.mozGpio.export).toHaveBeenCalledWith(100);
+      expect(navigator.mozGpio.export).toHaveBeenCalledWith(256);
     });
   });
   describe('propaty(default)', () => {
-    it('portNumber', () => expect(port.portNumber).toBe(100));
+    it('portNumber', () => expect(port.portNumber).toBe(256));
     it('portName', () => expect(port.portName).toBe(''));
     it('pinName', () => expect(port.pinName).toBe(''));
     it('direction', () => expect(port.direction).toBe(''));
@@ -32,10 +32,10 @@ describe('GPIOPort', () => {
             expect(port.exported).toBe(true);
             expect(port.direction).toBe('out');
             expect(navigator.mozGpio.setDirection).toHaveBeenCalled();
-            expect(navigator.mozGpio.setDirection).toHaveBeenCalledWith(100, true);
+            expect(navigator.mozGpio.setDirection).toHaveBeenCalledWith(256, true);
           })
           .then(done)
-          .catch(e=> expect('NOT').toBe('MATCH'));
+          .catch(e=> expect(e.message).toBe('MATCH'));
       });
 
       it('direction of in', done=> {
@@ -46,19 +46,19 @@ describe('GPIOPort', () => {
             expect(port.exported).toBe(true);
             expect(port.direction).toBe('in');
             expect(navigator.mozGpio.setDirection).toHaveBeenCalled();
-            expect(navigator.mozGpio.setDirection).toHaveBeenCalledWith(100, false);
+            expect(navigator.mozGpio.setDirection).toHaveBeenCalledWith(256, false);
             expect(port.__checkValue).toHaveBeenCalled();
             jasmine.clock().uninstall();
           })
           .then(done)
-          .catch(e=> expect('NOT').toBe('MATCH'));
+          .catch(e=> expect(e.message).toBe('MATCH'));
       });
       it('setInterval clear', done=> {
         port._timer = 1;
         port.export('out')
           .then(()=> expect(port._timer).toBe(1))
           .then(done)
-          .catch(e=> expect('NOT').toBe('MATCH'));
+          .catch(e=> expect(e.message).toBe('MATCH'));
       });
     });
 
@@ -85,7 +85,7 @@ describe('GPIOPort', () => {
           .then(result=> {
             expect(result).toBe(1);
             expect(navigator.mozGpio.getValue).toHaveBeenCalled();
-            expect(navigator.mozGpio.getValue).toHaveBeenCalledWith(100);
+            expect(navigator.mozGpio.getValue).toHaveBeenCalledWith(256);
             done();
           });
       });
@@ -120,7 +120,7 @@ describe('GPIOPort', () => {
           .then(result=> {
             expect(result).toBe(1);
             expect(navigator.mozGpio.setValue).toHaveBeenCalled();
-            expect(navigator.mozGpio.setValue).toHaveBeenCalledWith(100, 1);
+            expect(navigator.mozGpio.setValue).toHaveBeenCalledWith(256, 1);
             done();
           });
       });

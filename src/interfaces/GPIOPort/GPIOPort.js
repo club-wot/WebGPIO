@@ -5,16 +5,6 @@ var GPIOPort = function (portNumber) {
   this.init(portNumber);
 };
 
-const DIRECTION = {
-  IN: 'in',
-  OUT: 'out',
-};
-
-const IO = {
-  ROW: 0,
-  HIGH: 1,
-};
-
 /**
 * The GPIOPort interface represents a GPIO port assigned to a physical GPIO pin.
 **/
@@ -62,6 +52,7 @@ GPIOPort.prototype = {
     this._interval = 30;
     this.value = null;
     this._timer = null;
+    this._DEVICES = 'CHIRIMEN';
   },
 
   /**
@@ -90,7 +81,7 @@ GPIOPort.prototype = {
       var directFnc = directMap[direction];
 
       if (directFnc) {
-        navigator.mozGpio.setDirection(this.portNumber, direction === DIRECTION.OUT);
+        navigator.mozGpio.setDirection(this.portNumber, direction === DIRECTION_MODE.OUT);
         directFnc();
         resolve();
       }else {
@@ -101,10 +92,11 @@ GPIOPort.prototype = {
     var sucessHandler = event=> {
       this.direction = direction;
       this.exported = true;
-
-      // @todo set name
-      // this.pinName = '';
-      // this.portName = '';
+      // console.log('PORT_CONFIG');
+      // console.log(PORT_CONFIG[this._DEVICES].PORTS, this.portNumber);
+      // console.log(PORT_CONFIG[this._DEVICES].PORTS[this.portNumber]);
+      this.pinName = PORT_CONFIG[this._DEVICES].PORTS[this.portNumber].pinName;
+      this.portName = PORT_CONFIG[this._DEVICES].PORTS[this.portNumber].portName;
       return event;
     };
 
@@ -191,7 +183,7 @@ GPIOPort.prototype = {
   * @return {Boolean}
   **/
   __isInput: function () {
-    return this.direction === DIRECTION.IN;
+    return this.direction === DIRECTION_MODE.IN;
   },
 
   /**
@@ -199,7 +191,7 @@ GPIOPort.prototype = {
   * @return {Boolean}
   **/
   __isOutput: function () {
-    return this.direction === DIRECTION.OUT;
+    return this.direction === DIRECTION_MODE.OUT;
   },
 
   /**
