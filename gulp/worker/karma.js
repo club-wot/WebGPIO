@@ -20,7 +20,7 @@ gulp.task('test:watch', () => {
       configFile: `${process.cwd()}/karma/livereload.config.js`,
       files: [
         { pattern: `${config.rootDirs.srcGPIO}/**/*.js`, watched: true },
-        { pattern: `${config.rootDirs.srcCONFIG}/**/*.js`, watched: true },
+        { pattern: `${config.rootDirs.srcCOMMON}/**/*.js`, watched: true },
         { pattern: `${config.rootDirs.src}/polyfill/**/*.js`, watched: true },
       ],
       coverageReporter: {
@@ -39,7 +39,7 @@ gulp.task('test:watch', () => {
       configFile: `${process.cwd()}/karma/livereload.config.js`,
       files: [
         { pattern: `${config.rootDirs.srcI2C}/**/*.js`, watched: true },
-        { pattern: `${config.rootDirs.srcCONFIG}/**/*.js`, watched: true },
+        { pattern: `${config.rootDirs.srcCOMMON}/**/*.js`, watched: true },
         { pattern: `${config.rootDirs.src}/polyfill/**/*.js`, watched: true },
       ],
       coverageReporter: {

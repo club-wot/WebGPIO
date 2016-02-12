@@ -7,7 +7,7 @@ const ROOT_DIRS = {
   src: `${cwd}/src`,
   srcGPIO: `${cwd}/src/WebGPIO`,
   srcI2C: `${cwd}/src/WebI2C`,
-  srcCONFIG: `${cwd}/src/config`,
+  srcCOMMON: `${cwd}/src/common`,
   tmp: `${cwd}/.tmp`,
   node: `${cwd}/node_modules`,
   report: `${cwd}/report`,
