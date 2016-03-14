@@ -23,12 +23,12 @@ const PORT_CONFIG = {
     },
       I2C_PORTS: {
         0: {
-          SDA: { cn: 2, pin: 11 },
-          SCL: { cn: 2, pin: 12 },
+          SDA: { portName: 'CN2.I2C0_SCL', pinName: '11', },
+          SCL: { portName: 'CN2.I2C0_SDA', pinName: '12', },
         },
         2: {
-          SDA: { cn: 1, pin: 2 },
-          SCL: { cn: 1, pin: 3 },
+          SDA: { portName: 'CN2.I2C2_SDA', pinName: '2', },
+          SCL: { portName: 'CN2.I2C2_SCL', pinName: '3', },
         },
       },
   },
