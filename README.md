@@ -21,11 +21,11 @@ WebGPIO and WebI2C API polyfill (Chirimen dedicated)
 ### [WebI2C SPEC](https://rawgit.com/browserobo/WebI2C/master/index.html)
 
 + interface
-  + requestI2CAccess
-  + I2CAccess
-  + I2CPortMap
-  + I2CPort
-  + I2CSlaveDevice
+  + [ ] [requestI2CAccess](https://rawgit.com/browserobo/WebI2C/master/index.html#navigator-I2C)
+  + [ ] [I2CAccess](https://rawgit.com/browserobo/WebI2C/master/index.html#I2CAccess-interface)
+  + [ ] [I2CPortMap](https://rawgit.com/browserobo/WebI2C/master/index.html#I2CPortMap-interface)
+  + [ ] [I2CPort](https://rawgit.com/browserobo/WebI2C/master/index.html#I2CPort-interface)
+  + [ ] [I2CSlaveDevice](https://rawgit.com/browserobo/WebI2C/master/index.html#I2CSlaveDevice-interface)
 
 ## use WebGPIO polyfill
 
@@ -109,6 +109,9 @@ gulp dev
 
 # single run testing
 gulp test
+
+# live reload testing
+gulp test:watch
 
 ```
 

@@ -7,7 +7,7 @@ const browserSync = require('browser-sync');
 
 var normalizationBrowserName = browser=> browser.toLowerCase().split(/[ /-]/)[0];
 
-gulp.task('test', () => {
+gulp.task('karma', () => {
   const server = new Server({
     configFile: `${process.cwd()}/karma/build.config.js`,
     singleRun: true,
@@ -15,7 +15,7 @@ gulp.task('test', () => {
   server.start();
 });
 
-gulp.task('test:watch', () => {
+gulp.task('karma:watch', () => {
   const serverGPIO = new Server({
       configFile: `${process.cwd()}/karma/livereload.config.js`,
       files: [
