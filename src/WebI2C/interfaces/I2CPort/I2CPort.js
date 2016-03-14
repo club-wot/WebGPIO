@@ -5,7 +5,7 @@ function I2CPort(portNumber) {
 }
 
 I2CPort.prototype = {
-  init: function(portNumber) {
+  init: function (portNumber) {
     this.portNumber = portNumber;
   },
 
@@ -30,9 +30,9 @@ I2CPort.prototype = {
   *     }
   * );
   **/
-  open: function(slaveAddress) {
-    return new Promise((resolve, reject)=>{
+  open: function (slaveAddress) {
+    return new Promise((resolve, reject)=> {
       resolve(new I2CSlaveDevice(this.portNumber, slaveAddress));
     });
-  }
+  },
 };

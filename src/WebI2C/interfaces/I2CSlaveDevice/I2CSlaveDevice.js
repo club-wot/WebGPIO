@@ -8,7 +8,7 @@ function I2CSlaveDevice(portNumber) {
 }
 
 I2CSlaveDevice.prototype = {
-  init: function(portNumber, slaveAddress) {
+  init: function (portNumber, slaveAddress) {
     this.portNumber = portNumber;
     this.slaveAddress = slaveAddress;
     this.slaveDevice = navigator.mozI2c.setDeviceAddress(portNumber, slaveAddress);
@@ -51,13 +51,13 @@ I2CSlaveDevice.prototype = {
   *     console.log("Error: " + error.message + "(" + slaveAddress + ")");
   * }
   **/
-  read8: function(readRegistar) {
+  read8: function (readRegistar) {
     return new Promise((resolve, reject) => {
       resolve(navigator.mozI2c.read(this.portNumber, readRegistar, true));
     });
   },
 
-  read16: function(readRegistar) {
+  read16: function (readRegistar) {
     return this.read8(readRegistar);
   },
 
@@ -89,14 +89,14 @@ I2CSlaveDevice.prototype = {
   *     console.log("Error: " + error.message + "(" + slaveDevice.address + ")");
   * }
   **/
-  write8: function(registerNumber, value) {
+  write8: function (registerNumber, value) {
     return new Promise((resolve, reject) => {
       navigator.mozI2c.write(this.portNumber, registerNumber, value, true);
       resolve(value);
     });
   },
 
-  write16: function(registerNumber, value) {
+  write16: function (registerNumber, value) {
     return this.write8(registerNumber, value);
-  }
+  },
 };

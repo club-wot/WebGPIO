@@ -306,6 +306,16 @@ const PORT_CONFIG = {
       192: { portName: 'CN2.UART0_RX', pinName: '14', },
       353: { portName: 'CN2.GPIO6_A1', pinName: '15', },
     },
+    I2C_PORTS: {
+        0: {
+          SDA: { portName: 'CN2.I2C0_SCL', pinName: '11', },
+          SCL: { portName: 'CN2.I2C0_SDA', pinName: '12', },
+        },
+        2: {
+          SDA: { portName: 'CN1.I2C2_SDA', pinName: '2', },
+          SCL: { portName: 'CN1.I2C2_SCL', pinName: '3', },
+        },
+      },
   },
 };
 })()
