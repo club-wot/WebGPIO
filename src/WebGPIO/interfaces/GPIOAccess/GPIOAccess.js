@@ -5,41 +5,15 @@ var GPIOAccess = function (port) {
   this.init(port);
 };
 
-// https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0
-const CHIRIMEN_CONFIG = {
-  PORTS: {
-    CN1: [{
-      port: 256, }, {
-      port: 257, }, {
-      port: 283, }, {
-      port: 284, }, {
-      port: 196, }, {
-      port: 197, }, {
-      port: 198, }, {
-      port: 199, }, {
-      port: 244, }, {
-      port: 243, }, {
-      port: 246, }, {
-      port: 245, },],
-    CN2: [{
-      port: 163, }, {
-      port: 253, }, {
-      port: 252, }, {
-      port: 193, }, {
-      port: 192, }, {
-      port: 353, },],
-  },
-};
-
 GPIOAccess.prototype = {
   init: function (port) {
     this.ports = new GPIOPortMap();
-    var setPortMap = config=> this.ports.set(config.port, new GPIOPort(config.port));
+    var convertToNumber = portStr => parseInt(portStr, 10);
+    var setPortMap = port=> this.ports.set(port, new GPIOPort(port));
     /**
-     * @todo How to get the pin list?
-     ***/
-    CHIRIMEN_CONFIG.PORTS.CN1.forEach(setPortMap);
-    CHIRIMEN_CONFIG.PORTS.CN2.forEach(setPortMap);
+    * @todo How to get the pin list?
+    ***/
+    Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).forEach(setPortMap);
   },
 
   /**

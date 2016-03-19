@@ -1,22 +1,26 @@
 {
   "name": "webgpio",
-  "description": "WebGPIO API polyfill",
+  "description": "WebGPIO and WebI2C API polyfill",
   "authors": [
     "club-wot"
   ],
   "license": "MIT",
   "keywords": [
     "CHIRIMEN",
-    "webgpio"
+    "webgpio",
+    "webi2c"
   ],
   "homepage": "https://github.com/club-wot/WebGPIO",
   "moduleType": [],
-  "main": "dist/webgpio.min.js",
+  "main": [
+    "dist/webgpio.min.js",
+    "dist/webi2c.min.js"
+  ],
   "ignore": [
     "**/.*",
     "node_modules",
-    "test",
     "gulp",
+    "karma",
     "src",
     "gulpfile.babel.js"
   ]

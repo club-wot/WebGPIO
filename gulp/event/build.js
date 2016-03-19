@@ -5,6 +5,7 @@ gulp.task('build', cb => runSequence(
   ['jscs:fix', 'jscs:gulpfix'],
   'clean',
   'test',
-  'compless',
+  'compless:gpio',
+  'compless:i2c',
   cb
 ));

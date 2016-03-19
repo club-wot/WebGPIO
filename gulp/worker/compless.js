@@ -9,9 +9,27 @@ const insert = require('gulp-insert');
 
 //var concat = require('gulp-concat');
 
-gulp.task('compless', ()=> {
-  return gulp.src(config.paths.script.src)
+gulp.task('compless:gpio', ()=> {
+  return gulp.src(config.paths.script.gpio.src)
     .pipe(concat('webgpio.js'))
+    .pipe(insert.wrap('(function(){', '})()'))
+    .pipe(gulp.dest(config.rootDirs.dist))
+    .pipe(rename({
+      suffix: '.min',
+    }))
+    .pipe(babel({
+      presets: [],
+      plugins: ['transform-es2015-arrow-functions'],
+    }))
+    .pipe(uglify({
+      compress:true,
+    }))
+    .pipe(gulp.dest(config.rootDirs.dist));
+});
+
+gulp.task('compless:i2c', ()=> {
+  return gulp.src(config.paths.script.i2c.src)
+    .pipe(concat('webi2c.js'))
     .pipe(insert.wrap('(function(){', '})()'))
     .pipe(gulp.dest(config.rootDirs.dist))
     .pipe(rename({
