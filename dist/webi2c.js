@@ -32,6 +32,7 @@ function I2CPort(portNumber) {
 
 I2CPort.prototype = {
   init: function (portNumber) {
+    navigator.mozI2c.open(portNumber);
     this.portNumber = portNumber;
   },
 
@@ -73,8 +74,8 @@ var I2CPortMap = Map;
 // base example
 // https://github.com/browserobo/WebI2C/blob/master/implementations/Gecko/test-i2c/js/WebI2C.js
 
-function I2CSlaveDevice(portNumber) {
-  this.init(portNumber);
+function I2CSlaveDevice(portNumber, slaveAddress) {
+  this.init(portNumber, slaveAddress);
 }
 
 I2CSlaveDevice.prototype = {

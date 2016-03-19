@@ -93,6 +93,94 @@ window.addEventListener('load', function (){
 
 ##### [spec examples(spec file link)](https://rawgit.com/browserobo/WebGPIO/master/index.html#example)
 
+## use WebI2C polyfill
+
+### install
+
+```sh
+bower install --save webgpio-polyfill
+```
+
+### Usage
+
+```html
+<script src="[bower_components path]/webgpio/dist/webi2c.min.js"></script>
+```
+
+### sample
+
+#### sample
+
+[SRF02(ultrasonic ranging module )](http://www.robot-electronics.co.uk/htm/srf02techI2C.htm)
+
+```html
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Test LED</title>
+        <script src="[bower_components path]/webgpio/dist/webi2c.min.js"></script>
+        <script src="./js/main.js"></script>
+    </head>
+    <body>
+        <h3 id="head"
+            style="color:red; text-align: center; font-size: 90px">TEST</h3>
+    </body>
+</html>
+```
+
+ + `./js/main.js`
+
+```javascript
+'use strict';
+
+window.addEventListener('load', function (){
+  var head = document.querySelector('#head');
+
+  // WebI2C Initialized
+  navigator.requestI2CAccess()
+    .then(i2cAccess=>i2cAccess.ports)
+    .then(ports=> ports.get(0))
+    .then(port=> port.open(0x70))
+    .then(I2CSlave=>{
+      setInterval(() => SRF02.read(I2CSlave, 0x70).then(value => {
+        console.log('value:', value);
+        head.innerHTML = value ? value : head.innerHTML;
+      }), 1000);
+    }).catch(e=> console.error('error', e));
+
+  // SRF02 Initialized
+  var SRF02 = {
+    sleep: (ms, generator)=> setTimeout(() => generator.next(), ms),
+    read: (I2CSlave, address)=> {
+      return new Promise((resolve, reject)=> {
+        var thread = (function* () {
+
+          I2CSlave.write8(0x00, 0x00);
+          yield SRF02.sleep(1, thread);
+          I2CSlave.write8(0x00, 0x51);
+          yield SRF02.sleep(70, thread);
+
+          // get distance value
+          Promise.all([
+            I2CSlave.read8(0x02, true),
+            I2CSlave.read8(0x03, true),
+          ]).then(function(v){
+            var dist = ((v[0] << 8) + v[1]);
+            resolve(dist);
+          }).catch(reject);
+        })();
+
+        thread.next();
+      });
+    }
+  };
+
+}, false);
+```
+
+##### [spec examples(spec file link)](https://rawgit.com/browserobo/WebI2C/master/index.html#example)
+
 ### build
 
 In the following command, concatenated file is output to the `./dist` directory.
