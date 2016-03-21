@@ -118,7 +118,7 @@ bower install --save webgpio-polyfill
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Test LED</title>
+        <title>Test SRF02</title>
         <script src="[bower_components path]/webgpio/dist/webi2c.min.js"></script>
         <script src="./js/main.js"></script>
     </head>
