@@ -151,4 +151,4 @@ if (!navigator.mozI2c) {
     return Promise.resolve(void 0);
   };
 }
-})()
+})();
