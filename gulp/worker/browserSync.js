@@ -1,7 +1,12 @@
 const config = require('../config');
 const gulp = require('gulp');
-const browserSync = require('browser-sync').create(config.browserSync.namespace.report);
+const browserSyncReport = require('browser-sync').create(config.browserSync.namespace.report);
+const browserSyncDemo = require('browser-sync').create(config.browserSync.namespace.demo);
 
 gulp.task('browser-sync:report', () => {
-  browserSync.init(config.browserSync.report);
+  browserSyncReport.init(config.browserSync.report);
+});
+
+gulp.task('browser-sync:demo', () => {
+  browserSyncDemo.init(config.browserSync.demo);
 });

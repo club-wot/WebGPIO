@@ -22,6 +22,11 @@ const PATHS = {
         `${ROOT_DIRS.srcCOMMON}/**/!(*spec|*mock).js`,
       ],
     },
+    worker: {
+      src: [
+        `${ROOT_DIRS.srcWORKER}/**/!(*spec|*mock).js`,
+      ],
+    },
   },
   test: {
     src: [

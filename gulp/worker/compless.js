@@ -44,3 +44,22 @@ gulp.task('compless:i2c', ()=> {
     }))
     .pipe(gulp.dest(config.rootDirs.dist));
 });
+
+gulp.task('compless:worker', ()=> {
+  return gulp.src(config.paths.script.worker.src)
+    .pipe(concat('worker.js'))
+    .pipe(insert.wrap('(function(){', '})()'))
+    .pipe(gulp.dest(config.rootDirs.dist));
+
+  // .pipe(rename({
+  //   suffix: '.min',
+  // }))
+  // .pipe(babel({
+  //   presets: [],
+  //   plugins: ['transform-es2015-arrow-functions'],
+  // }))
+  // .pipe(uglify({
+  //   compress:true,
+  // }))
+  // .pipe(gulp.dest(config.rootDirs.dist));
+});

@@ -11,7 +11,15 @@ I2CSlaveDevice.prototype = {
   init: function (portNumber, slaveAddress) {
     this.portNumber = portNumber;
     this.slaveAddress = slaveAddress;
-    this.slaveDevice = navigator.mozI2c.setDeviceAddress(portNumber, slaveAddress);
+
+    window.WorkerOvserve.notify('i2c', {
+      method: 'i2c.setDeviceAddress',
+      portNumber: this.portNumber,
+    });
+
+    window.WorkerOvserve.observe(`i2c.setDeviceAddress.${this.portNumber}`, (data) => {
+      this.slaveDevice = data.slaveDevice;
+    });
   },
 
   /**
@@ -53,7 +61,15 @@ I2CSlaveDevice.prototype = {
   **/
   read8: function (readRegistar) {
     return new Promise((resolve, reject) => {
-      resolve(navigator.mozI2c.read(this.portNumber, readRegistar, true));
+
+      window.WorkerOvserve.notify('i2c', {
+        method: 'i2c.read',
+        portNumber: this.portNumber,
+        readRegistar: readRegistar,
+        aIsOctet: true,
+      });
+
+      window.WorkerOvserve.observe(`i2c.read.${this.portNumber}`, (data) => resolve(data.value));
     });
   },
 
@@ -91,8 +107,18 @@ I2CSlaveDevice.prototype = {
   **/
   write8: function (registerNumber, value) {
     return new Promise((resolve, reject) => {
-      navigator.mozI2c.write(this.portNumber, registerNumber, value, true);
-      resolve(value);
+
+      window.WorkerOvserve.notify('i2c', {
+        method: 'i2c.write',
+        portNumber: this.portNumber,
+        registerNumber: registerNumber,
+        value: value,
+        aIsOctet: true,
+      });
+
+      window.WorkerOvserve.observe(`i2c.write.${this.portNumber}`, (data) => {
+        resolve(data.value);
+      });
     });
   },
 

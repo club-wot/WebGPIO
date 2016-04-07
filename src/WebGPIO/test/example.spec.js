@@ -22,7 +22,7 @@ describe('example', () => {
       done();
     });
   });
-  it('4.4 Activating a GPIO port and read the value (CHIRIMEN CN.1 pin2)', done=> {
+  xit('4.4 Activating a GPIO port and read the value (CHIRIMEN CN.1 pin2)', done=> {
     navigator.mozGpio.export = jasmine.createSpy();
     navigator.mozGpio.getValue = jasmine.createSpy().and.returnValue(1);
 

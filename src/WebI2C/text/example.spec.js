@@ -38,10 +38,14 @@ describe('example', () => {
       .then(slaveDevice=> slaveDevice.read8(0x41))
       .then(value=> {
         expect(value).toBe(100);
-        expect(navigator.mozI2c.read).toHaveBeenCalled();
-        expect(navigator.mozI2c.read).toHaveBeenCalledWith(2,65, true);
         done();
-      });
+      }).catch(e => console.log(e.message));
+    window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice!' });
+
+    setTimeout(()=> {
+      window.WorkerOvserve.notify('i2c.read.2', { value: 100 });
+    }, 500);
+
   });
   it('[T.B.D] 4.7 Listening to changes of a spefific I2C slave device');
   it('4.8 Writing a value', done=> {
@@ -52,9 +56,13 @@ describe('example', () => {
       .then(slaveDevice=> slaveDevice.write8(0x41, 0x42))
       .then(value=> {
         expect(value).toBe(66);
-        expect(navigator.mozI2c.write).toHaveBeenCalled();
-        expect(navigator.mozI2c.write).toHaveBeenCalledWith(2, 65, 66, true);
         done();
       }).catch(e=> console.log(e.message));
+
+    window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice!' });
+
+    setTimeout(()=> {
+      window.WorkerOvserve.notify('i2c.write.2', { value: 66 });
+    }, 500);
   });
 });

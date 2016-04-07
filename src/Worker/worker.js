@@ -1,0 +1,102 @@
+
+var ab2json = (dataBuffer) => JSON.parse(String.fromCharCode.apply(null, new Uint16Array(dataBuffer)));
+var json2ab = (jsonData) => {
+  var strJson = JSON.stringify(jsonData);
+  var buf = new ArrayBuffer(strJson.length * 2);
+  var uInt8Array = new Uint16Array(buf);
+  for (var i = 0, strLen = strJson.length; i < strLen; i++) {
+    uInt8Array[i] = strJson.charCodeAt(i);
+  }
+
+  return uInt8Array;
+};
+
+/**
+* gpio監視イベント
+**/
+var intervalPortList = [];
+
+var onchangeIntervalId = setInterval(()=> {
+
+  intervalPortList.forEach(port=> {
+    navigator.mozGpio.getValue(port.portNumber).then((value)=> {
+      if (parseInt(port.value) !== parseInt(value)) {
+        postMessage(json2ab({ method: `gpio.onchange.${port.portNumber}`, portNumber: port.portNumber, value: value, }));
+        port.value = value;
+      }
+    });
+  });
+}, 30);
+
+onmessage =  (e) => {
+  var data = ab2json(e.data);
+  switch (data.method) {
+    /********************************/
+    /**         GPIO                */
+    /********************************/
+    case 'gpio.export':
+      navigator.mozGpio.export(data.portNumber);
+      break;
+    case 'gpio.setDirection':
+      navigator.mozGpio.setDirection(data.portNumber, data.direction);
+
+      if (!data.direction) {
+        intervalPortList.push({
+          portNumber: data.portNumber,
+          valuse: null,
+        });
+      } else {
+        intervalPortList = intervalPortList.filter((v) => data.portNumber !== v.portNumber);
+      }
+
+      break;
+    case 'gpio.setValue':
+      navigator.mozGpio.setValue(data.portNumber, data.value);
+      break;
+    case 'gpio.getValue':
+      navigator.mozGpio.getValue(data.portNumber).then((value)=> {
+
+        postMessage(json2ab({
+          method: `${data.method}.${data.portNumber}`,
+          portNumber: data.portNumber,
+          value: value,
+        }));
+      });
+      break;
+    /********************************/
+    /**         I2C                 */
+    /********************************/
+    case 'i2c.open':
+      navigator.mozI2c.open(data.portNumber);
+      break;
+    case 'i2c.setDeviceAddress':
+      var slaveDevice = navigator.mozI2c.setDeviceAddress(data.portNumber, data.slaveAddress);
+      postMessage(json2ab({
+        method: `${data.method}.${data.portNumber}`,
+        portNumber: data.portNumber,
+        slaveDevice: slaveDevice,
+      }));
+      break;
+    case 'i2c.write':
+      var value = navigator.mozI2c.write(data.portNumber, data.registerNumber, data.value, data.aIsOctet);
+      postMessage(json2ab({
+        method: `${data.method}.${data.portNumber}`,
+        portNumber: data.portNumber,
+        value: value,
+      }));
+      break;
+    case 'i2c.read':
+      navigator.mozI2c.read(data.portNumber, data.readRegistar, data.aIsOctet).then((value)=> {
+        postMessage(json2ab({
+          method: `${data.method}.${data.portNumber}`,
+          portNumber: data.portNumber,
+          value: value,
+        }));
+      });
+
+      break;
+    default:
+      throw 'Unexpected case to worker method';
+      break;
+  }
+};

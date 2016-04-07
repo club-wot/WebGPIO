@@ -32,7 +32,10 @@ function I2CPort(portNumber) {
 
 I2CPort.prototype = {
   init: function (portNumber) {
-    navigator.mozI2c.open(portNumber);
+    window.WorkerOvserve.notify('i2c', {
+      method: 'i2c.open',
+      portNumber: this.portNumber,
+    });
     this.portNumber = portNumber;
   },
 
@@ -82,7 +85,15 @@ I2CSlaveDevice.prototype = {
   init: function (portNumber, slaveAddress) {
     this.portNumber = portNumber;
     this.slaveAddress = slaveAddress;
-    this.slaveDevice = navigator.mozI2c.setDeviceAddress(portNumber, slaveAddress);
+
+    window.WorkerOvserve.notify('i2c', {
+      method: 'i2c.setDeviceAddress',
+      portNumber: this.portNumber,
+    });
+
+    window.WorkerOvserve.observe(`i2c.setDeviceAddress.${this.portNumber}`, (data) => {
+      this.slaveDevice = data.slaveDevice;
+    });
   },
 
   /**
@@ -124,7 +135,15 @@ I2CSlaveDevice.prototype = {
   **/
   read8: function (readRegistar) {
     return new Promise((resolve, reject) => {
-      resolve(navigator.mozI2c.read(this.portNumber, readRegistar, true));
+
+      window.WorkerOvserve.notify('i2c', {
+        method: 'i2c.read',
+        portNumber: this.portNumber,
+        readRegistar: readRegistar,
+        aIsOctet: true,
+      });
+
+      window.WorkerOvserve.observe(`i2c.read.${this.portNumber}`, (data) => resolve(data.value));
     });
   },
 
@@ -162,8 +181,18 @@ I2CSlaveDevice.prototype = {
   **/
   write8: function (registerNumber, value) {
     return new Promise((resolve, reject) => {
-      navigator.mozI2c.write(this.portNumber, registerNumber, value, true);
-      resolve(value);
+
+      window.WorkerOvserve.notify('i2c', {
+        method: 'i2c.write',
+        portNumber: this.portNumber,
+        registerNumber: registerNumber,
+        value: value,
+        aIsOctet: true,
+      });
+
+      window.WorkerOvserve.observe(`i2c.write.${this.portNumber}`, (data) => {
+        resolve(data.value);
+      });
     });
   },
 
@@ -176,6 +205,79 @@ I2CSlaveDevice.prototype = {
 if (!navigator.requestI2CAccess) {
   navigator.requestI2CAccess = function () {
     return Promise.resolve(new I2CAccess());
+  };
+}
+
+var ab2json = (dataBuffer) => JSON.parse(String.fromCharCode.apply(null, new Uint16Array(dataBuffer)));
+var json2ab = (jsonData) => {
+  var strJson = JSON.stringify(jsonData);
+  var buf = new ArrayBuffer(strJson.length * 2);
+  var uInt8Array = new Uint16Array(buf);
+  for (var i = 0, strLen = strJson.length; i < strLen; i++) {
+    uInt8Array[i] = strJson.charCodeAt(i);
+  }
+
+  return uInt8Array;
+};
+
+/**
+ * @example setting ovserve function
+ *   global.MockOvserve.observe('market_orders_softnas', function(updateJson){
+ *     stateCtrl.setJsonData(updateJson);
+ *   });
+ *
+ * @example nofify method (parameter single only)
+ *   global.MockOvserve.notify('market_orders_softnas', { param: 'PARAM' });
+ **/
+window.WorkerOvserve = window.WorkerOvserve || (function () {
+
+  function Ovserve() {
+    this._Map = new Map();
+  }
+
+  // set ovserver
+  Ovserve.prototype.observe = function (name, fnc) {
+    var funcs = this._Map.get(name) || [];
+    funcs.push(fnc);
+    this._Map.set(name, funcs);
+  };
+
+  // remove ovserver
+  Ovserve.prototype.unobserve = function (name, func) {
+    var funcs = this._Map.get(name) || [];
+    this._Map.set(name, funcs.filter(function (_func) {
+      return _func !== func;
+    }));
+  };
+
+  // notify ovserve
+  Ovserve.prototype.notify = function (name) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    (this._Map.get(name) || []).forEach(function (func, index) {
+      func.apply(null, args);
+    });
+  };
+
+  return new Ovserve();
+})();
+
+if (window.Worker) {
+  var _worker = new Worker('./worker.js');
+
+  // @MEMO gpioとi2cのObserverを分けた意味は「まだ」特にない
+  window.WorkerOvserve.observe('gpio', function (jsonData) {
+    var ab = json2ab(jsonData);
+    _worker.postMessage(ab.buffer, [ab.buffer]);
+  });
+
+  window.WorkerOvserve.observe('i2c', function (jsonData) {
+    var ab = json2ab(jsonData);
+    _worker.postMessage(ab.buffer, [ab.buffer]);
+  });
+
+  _worker.onmessage = function (e) {
+    var data = ab2json(e.data);
+    window.WorkerOvserve.notify(data.method, data);
   };
 }
 

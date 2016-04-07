@@ -6,7 +6,10 @@ function I2CPort(portNumber) {
 
 I2CPort.prototype = {
   init: function (portNumber) {
-    navigator.mozI2c.open(portNumber);
+    window.WorkerOvserve.notify('i2c', {
+      method: 'i2c.open',
+      portNumber: this.portNumber,
+    });
     this.portNumber = portNumber;
   },
 
