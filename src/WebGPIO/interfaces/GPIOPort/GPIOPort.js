@@ -5,6 +5,9 @@ var GPIOPort = function (portNumber) {
   this.init(portNumber);
 };
 
+/**
+* The GPIOPort interface represents a GPIO port assigned to a physical GPIO pin.
+**/
 GPIOPort.prototype = {
   init: function (portNumber) {
 
