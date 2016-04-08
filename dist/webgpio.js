@@ -8,6 +8,7 @@ const IO = {
   HIGH: 1,
 };
 
+
 // document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
 
@@ -49,8 +50,6 @@ GPIOAccess.prototype = {
   **/
   onchange: null,
 };
-
-
 
 // document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPort-interface
@@ -275,6 +274,7 @@ GPIOPort.prototype = {
   },
 };
 
+
 // document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPortMap-interface
 
@@ -332,6 +332,7 @@ window.WorkerOvserve = window.WorkerOvserve || (function () {
   // notify ovserve
   Ovserve.prototype.notify = function (name) {
     var args = Array.prototype.slice.call(arguments, 1);
+    /* istanbul ignore next */
     (this._Map.get(name) || []).forEach(function (func, index) {
       func.apply(null, args);
     });
@@ -339,7 +340,7 @@ window.WorkerOvserve = window.WorkerOvserve || (function () {
 
   return new Ovserve();
 })();
-
+/* istanbul ignore next */
 if (window.Worker) {
   var _worker = new Worker('./worker.js');
 

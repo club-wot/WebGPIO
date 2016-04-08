@@ -53,15 +53,27 @@ gulp.task('karma:watch', () => {
       singleRun: false,
       autoWatch: true,
     });
+
+  const serverWorker = new Server({
+          configFile: `${process.cwd()}/karma/livereload.config.js`,
+          files: [
+            { pattern: `${config.rootDirs.srcWORKER}/**/*.js`, watched: true },
+          ],
+          coverageReporter: {
+            dir: `${config.paths.report.coverage}/worker`,
+            reporters: [{
+              type: 'text', subdir: 'text',
+            }, {
+              type: 'html', subdir: 'html',
+            },],
+          },
+          singleRun: false,
+          autoWatch: true,
+        });
+
   serverGPIO.start();
   serverI2C.start();
+  serverWorker.start();
 
-  // gulp.watch(`${config.rootDirs.src}/**/*.js`, browserSync.get(config.browserSync.namespace.report).reload);
-  // const server = new Server({
-  //   configFile: `${process.cwd()}/karma/livereload.config.js`,
-  //   singleRun: false,
-  //   autoWatch: true,
-  // });
-  // server.start();
   gulp.watch(`${config.rootDirs.src}/**/*.js`, browserSync.get(config.browserSync.namespace.report).reload);
 });

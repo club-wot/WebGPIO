@@ -19,7 +19,6 @@ describe('I2CSlaveDevice', () => {
   });
   describe('method', ()=> {
     it('read8', done=> {
-      navigator.mozI2c.read = jasmine.createSpy().and.returnValue(2);
       slaveDevice.read8(0x41)
         .then(value=>{
           expect(value).toEqual(2);
@@ -28,7 +27,6 @@ describe('I2CSlaveDevice', () => {
       window.WorkerOvserve.notify('i2c.read.2', { value: 2 });
     });
     it('read16', done=> {
-      navigator.mozI2c.read = jasmine.createSpy().and.returnValue(2);
       slaveDevice.read16(0x41)
         .then(value=>{
           expect(value).toEqual(2);
@@ -37,7 +35,6 @@ describe('I2CSlaveDevice', () => {
       window.WorkerOvserve.notify('i2c.read.2', { value: 2 });
     });
     it('write8', done=> {
-      navigator.mozI2c.write = jasmine.createSpy().and.returnValue(2);
       slaveDevice.write8(0x41, 0x42)
         .then(value=>{
           expect(value).toEqual(66);
@@ -46,7 +43,6 @@ describe('I2CSlaveDevice', () => {
       window.WorkerOvserve.notify('i2c.write.2', { value: 66 });
     });
     it('write16', done=> {
-      navigator.mozI2c.write = jasmine.createSpy().and.returnValue(2);
       slaveDevice.write16(0x41, 0x42)
         .then(value=>{
           expect(value).toEqual(66);

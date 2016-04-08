@@ -31,7 +31,6 @@ describe('example', () => {
       });
   });
   it('4.6 Reading the value', done=> {
-    navigator.mozI2c.read = jasmine.createSpy().and.returnValue(100);
     navigator.requestI2CAccess()
       .then(I2C => I2C.ports.get(2))
       .then(port => port.open(0x40))
@@ -49,7 +48,6 @@ describe('example', () => {
   });
   it('[T.B.D] 4.7 Listening to changes of a spefific I2C slave device');
   it('4.8 Writing a value', done=> {
-    navigator.mozI2c.write = jasmine.createSpy().and.returnValue(100);
     navigator.requestI2CAccess()
       .then(I2C => I2C.ports.get(2))
       .then(port => port.open(0x40))
