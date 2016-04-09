@@ -1,11 +1,11 @@
 /**
  * @example setting ovserve function
- *   global.MockOvserve.observe('market_orders_softnas', function(updateJson){
+ *   global.MockOvserve.observe('xxxxx_xxxxx_xxxxx', function(updateJson){
  *     stateCtrl.setJsonData(updateJson);
  *   });
  *
  * @example nofify method (parameter single only)
- *   global.MockOvserve.notify('market_orders_softnas', { param: 'PARAM' });
+ *   global.MockOvserve.notify('xxxxx_xxxxx_xxxxx', { param: 'PARAM' });
  **/
 window.WorkerOvserve = window.WorkerOvserve || (function () {
 
