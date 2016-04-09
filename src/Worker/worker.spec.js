@@ -34,7 +34,7 @@ describe('onChangeIntervalEvent', () => {
     expect(navigator.mozGpio.getValue).toHaveBeenCalled();
     expect(navigator.mozGpio.getValue).toHaveBeenCalledWith(256);
   });
-  it('match value', done=>{
+  it('match value', ()=>{
     intervalPortList = [{
       portNumber: 256,
       value: 1,
@@ -45,10 +45,12 @@ describe('onChangeIntervalEvent', () => {
     expect(navigator.mozGpio.getValue).toHaveBeenCalled();
     expect(navigator.mozGpio.getValue).toHaveBeenCalledWith(256);
     expect(window.postMessage).not.toHaveBeenCalled();
-    setTimeout(()=> done(), 10);
   })
 });
-describe('onmessage', () => {
+describe('worker.onmessage', () => {
+  afterEach(()=> {
+    window.postMessage = () => {};
+  });
   const createMessageEvent = (data) => ({
     data: json2abWorker(data),
   });
