@@ -13,7 +13,7 @@ GPIOPort.prototype = {
 
     window.WorkerOvserve.notify('gpio', {
       method: 'gpio.export',
-      portNumber: this.portNumber,
+      portNumber: portNumber,
     });
 
     /**

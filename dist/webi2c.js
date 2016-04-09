@@ -1,30 +1,4 @@
-(function(){// document
-// https://rawgit.com/browserobo/WebI2C/master/index.html#navigator-I2C
-
-var I2CAccess = function (port) {
-  this.init(port);
-};
-
-I2CAccess.prototype = {
-  init: function (port) {
-    this.ports = new I2CPortMap();
-    var convertToNumber = portStr => parseInt(portStr, 10);
-    var setPortMap = port=> this.ports.set(port, new I2CPort(port));
-    /**
-    * @todo getI2C Ports
-    ***/
-    Object.keys(PORT_CONFIG.CHIRIMEN.I2C_PORTS)
-      .map(convertToNumber)
-      .forEach(setPortMap);
-  },
-
-  /**
-  * @type {I2CPortMap}
-  **/
-  ports: null,
-};
-
-// https://rawgit.com/browserobo/WebI2C/master/index.html#I2CPort-interface
+(function(){// https://rawgit.com/browserobo/WebI2C/master/index.html#I2CPort-interface
 
 function I2CPort(portNumber) {
   this.init(portNumber);
@@ -65,6 +39,32 @@ I2CPort.prototype = {
       resolve(new I2CSlaveDevice(this.portNumber, slaveAddress));
     });
   },
+};
+
+// document
+// https://rawgit.com/browserobo/WebI2C/master/index.html#navigator-I2C
+
+var I2CAccess = function (port) {
+  this.init(port);
+};
+
+I2CAccess.prototype = {
+  init: function (port) {
+    this.ports = new I2CPortMap();
+    var convertToNumber = portStr => parseInt(portStr, 10);
+    var setPortMap = port=> this.ports.set(port, new I2CPort(port));
+    /**
+    * @todo getI2C Ports
+    ***/
+    Object.keys(PORT_CONFIG.CHIRIMEN.I2C_PORTS)
+      .map(convertToNumber)
+      .forEach(setPortMap);
+  },
+
+  /**
+  * @type {I2CPortMap}
+  **/
+  ports: null,
 };
 
 // document
@@ -261,9 +261,23 @@ window.WorkerOvserve = window.WorkerOvserve || (function () {
 
   return new Ovserve();
 })();
+
 /* istanbul ignore next */
 if (window.Worker) {
-  var _worker = new Worker('./worker.js');
+
+  var current = (function () {
+    if (document.currentScript) {
+      return document.currentScript.src;
+    } else {
+      var scripts = document.getElementsByTagName('script'),
+      script = scripts[scripts.length - 1];
+      if (script.src) {
+        return script.src;
+      }
+    }
+  })();
+
+  var _worker = new Worker(`${current.substr(0, current.lastIndexOf('/'))}/worker.js`);
 
   // @MEMO gpioとi2cのObserverを分けた意味は「まだ」特にない
   window.WorkerOvserve.observe('gpio', function (jsonData) {

@@ -39,9 +39,23 @@ window.WorkerOvserve = window.WorkerOvserve || (function () {
 
   return new Ovserve();
 })();
+
 /* istanbul ignore next */
 if (window.Worker) {
-  var _worker = new Worker('./worker.js');
+
+  var current = (function () {
+    if (document.currentScript) {
+      return document.currentScript.src;
+    } else {
+      var scripts = document.getElementsByTagName('script'),
+      script = scripts[scripts.length - 1];
+      if (script.src) {
+        return script.src;
+      }
+    }
+  })();
+
+  var _worker = new Worker(`${current.substr(0, current.lastIndexOf('/'))}/worker.js`);
 
   // @MEMO gpioとi2cのObserverを分けた意味は「まだ」特にない
   window.WorkerOvserve.observe('gpio', function (jsonData) {

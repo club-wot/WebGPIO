@@ -130,10 +130,11 @@ if (!navigator.mozGpio) {
   };
 
   // x秒おきに値を変更する
-  setInterval(()=> {
-    navigator.mozGpio.value = navigator.mozGpio.value ? 0 : 1;
-    console.log('navigator.mozGpio.value change', navigator.mozGpio.value);
-  }, 10000);
+  // onchange event test
+  // setInterval(()=> {
+  //   navigator.mozGpio.value = navigator.mozGpio.value ? 0 : 1;
+  //   console.log('navigator.mozGpio.value change', navigator.mozGpio.value);
+  // }, 10000);
 }
 
 /* istanbul ignore next */
