@@ -17,7 +17,7 @@ var json2abWorker = (jsonData) => {
 var onChangeIntervalEvent = ()=> {
 
   intervalPortList.forEach(port=> {
-    navigator.mozGpio.getValue(port.portNumber).then((value)=> {
+    Promise.resolve(navigator.mozGpio.getValue(port.portNumber)).then((value)=> {
       if (parseInt(port.value) !== parseInt(value)) {
         port.value = value;
         postMessage(json2abWorker({ method: `gpio.onchange.${port.portNumber}`, portNumber: port.portNumber, value: value, }));
@@ -117,7 +117,7 @@ if (!navigator.mozGpio) {
   };
 
   navigator.mozGpio.getValue = function (portNumber) {
-    return Promise.resolve(navigator.mozGpio.value);
+    return navigator.mozGpio.value;
   };
 
   navigator.mozGpio.setDirection = function (portno, direction) {

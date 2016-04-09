@@ -14,7 +14,7 @@ if (!navigator.mozGpio) {
   };
 
   navigator.mozGpio.getValue = function (portNumber) {
-    return Promise.resolve(navigator.mozGpio.value);
+    return navigator.mozGpio.value;
   };
 
   navigator.mozGpio.setDirection = function (portno, direction) {
