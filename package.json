@@ -1,6 +1,6 @@
 {
   "name": "webgpio",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "WebGPIO API polyfill",
   "main": [
     "dist/webgpio.min.js",
