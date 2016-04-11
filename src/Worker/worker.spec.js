@@ -152,7 +152,7 @@ describe('worker.onmessage', () => {
     });
     it('i2c.write', ()=>{
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.write.256', portNumber: 256 });
+        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.write.256.65', portNumber: 256 });
       };
       onmessage(createMessageEvent({
         method: 'i2c.write',
@@ -166,7 +166,7 @@ describe('worker.onmessage', () => {
     });
     it('i2c.read', done=>{
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256', portNumber: 256, value: 1 });
+        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 1 });
         done();
       };
       onmessage(createMessageEvent({

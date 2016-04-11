@@ -15,6 +15,7 @@ I2CSlaveDevice.prototype = {
     window.WorkerOvserve.notify('i2c', {
       method: 'i2c.setDeviceAddress',
       portNumber: this.portNumber,
+      slaveAddress: this.slaveAddress,
     });
 
     window.WorkerOvserve.observe(`i2c.setDeviceAddress.${this.portNumber}`, (data) => {
@@ -69,7 +70,7 @@ I2CSlaveDevice.prototype = {
         aIsOctet: true,
       });
 
-      window.WorkerOvserve.observe(`i2c.read.${this.portNumber}`, (data) => resolve(data.value));
+      window.WorkerOvserve.observe(`i2c.read.${this.portNumber}.${readRegistar}`, (data) => resolve(data.value));
     });
   },
 
@@ -116,7 +117,7 @@ I2CSlaveDevice.prototype = {
         aIsOctet: true,
       });
 
-      window.WorkerOvserve.observe(`i2c.write.${this.portNumber}`, (data) => {
+      window.WorkerOvserve.observe(`i2c.write.${this.portNumber}.${registerNumber}`, (data) => {
         resolve(data.value);
       });
     });

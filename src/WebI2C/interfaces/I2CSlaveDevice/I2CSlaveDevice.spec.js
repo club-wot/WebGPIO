@@ -24,7 +24,7 @@ describe('I2CSlaveDevice', () => {
           expect(value).toEqual(2);
         })
         .then(()=> done());
-      window.WorkerOvserve.notify('i2c.read.2', { value: 2 });
+      window.WorkerOvserve.notify('i2c.read.2.65', { value: 2 });
     });
     it('read16', done=> {
       slaveDevice.read16(0x41)
@@ -32,7 +32,7 @@ describe('I2CSlaveDevice', () => {
           expect(value).toEqual(2);
         })
         .then(()=> done());
-      window.WorkerOvserve.notify('i2c.read.2', { value: 2 });
+      window.WorkerOvserve.notify('i2c.read.2.65', { value: 2 });
     });
     it('write8', done=> {
       slaveDevice.write8(0x41, 0x42)
@@ -40,7 +40,7 @@ describe('I2CSlaveDevice', () => {
           expect(value).toEqual(66);
         })
         .then(()=> done());
-      window.WorkerOvserve.notify('i2c.write.2', { value: 66 });
+      window.WorkerOvserve.notify('i2c.write.2.65', { value: 66 });
     });
     it('write16', done=> {
       slaveDevice.write16(0x41, 0x42)
@@ -48,7 +48,7 @@ describe('I2CSlaveDevice', () => {
           expect(value).toEqual(66);
         })
         .then(()=> done());
-      window.WorkerOvserve.notify('i2c.write.2', { value: 66 });
+      window.WorkerOvserve.notify('i2c.write.2.65', { value: 66 });
     });
   });
 });

@@ -42,7 +42,7 @@ describe('example', () => {
     window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice!' });
 
     setTimeout(()=> {
-      window.WorkerOvserve.notify('i2c.read.2', { value: 100 });
+      window.WorkerOvserve.notify('i2c.read.2.65', { value: 100 });
     }, 500);
 
   });
@@ -60,7 +60,7 @@ describe('example', () => {
     window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice!' });
 
     setTimeout(()=> {
-      window.WorkerOvserve.notify('i2c.write.2', { value: 66 });
+      window.WorkerOvserve.notify('i2c.write.2.65', { value: 66 });
     }, 500);
   });
 });

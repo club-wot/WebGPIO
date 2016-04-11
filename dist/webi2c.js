@@ -89,6 +89,7 @@ I2CSlaveDevice.prototype = {
     window.WorkerOvserve.notify('i2c', {
       method: 'i2c.setDeviceAddress',
       portNumber: this.portNumber,
+      slaveAddress: this.slaveAddress,
     });
 
     window.WorkerOvserve.observe(`i2c.setDeviceAddress.${this.portNumber}`, (data) => {
@@ -143,7 +144,7 @@ I2CSlaveDevice.prototype = {
         aIsOctet: true,
       });
 
-      window.WorkerOvserve.observe(`i2c.read.${this.portNumber}`, (data) => resolve(data.value));
+      window.WorkerOvserve.observe(`i2c.read.${this.portNumber}.${readRegistar}`, (data) => resolve(data.value));
     });
   },
 
@@ -190,7 +191,7 @@ I2CSlaveDevice.prototype = {
         aIsOctet: true,
       });
 
-      window.WorkerOvserve.observe(`i2c.write.${this.portNumber}`, (data) => {
+      window.WorkerOvserve.observe(`i2c.write.${this.portNumber}.${registerNumber}`, (data) => {
         resolve(data.value);
       });
     });
@@ -222,12 +223,12 @@ var json2ab = (jsonData) => {
 
 /**
  * @example setting ovserve function
- *   global.MockOvserve.observe('market_orders_softnas', function(updateJson){
+ *   global.MockOvserve.observe('xxxxx_xxxxx_xxxxx', function(updateJson){
  *     stateCtrl.setJsonData(updateJson);
  *   });
  *
  * @example nofify method (parameter single only)
- *   global.MockOvserve.notify('market_orders_softnas', { param: 'PARAM' });
+ *   global.MockOvserve.notify('xxxxx_xxxxx_xxxxx', { param: 'PARAM' });
  **/
 window.WorkerOvserve = window.WorkerOvserve || (function () {
 

@@ -81,15 +81,15 @@ onmessage =  (e) => {
     case 'i2c.write':
       var value = navigator.mozI2c.write(data.portNumber, data.registerNumber, data.value, data.aIsOctet);
       postMessage(json2abWorker({
-        method: `${data.method}.${data.portNumber}`,
+        method: `${data.method}.${data.portNumber}.${data.registerNumber}`,
         portNumber: data.portNumber,
         value: value,
       }));
       break;
     case 'i2c.read':
-      navigator.mozI2c.read(data.portNumber, data.readRegistar, data.aIsOctet).then((value)=> {
+      Promise.resolve(navigator.mozI2c.read(data.portNumber, data.readRegistar, data.aIsOctet)).then((value)=> {
         postMessage(json2abWorker({
-          method: `${data.method}.${data.portNumber}`,
+          method: `${data.method}.${data.portNumber}.${data.readRegistar}`,
           portNumber: data.portNumber,
           value: value,
         }));
