@@ -201,6 +201,12 @@ gulp test
 # live reload testing
 gulp test:watch
 
+# building webgpio and webi2c
+gulp build
+
+# open demo application
+gulp demo
+
 ```
 
 

@@ -1,14 +1,12 @@
+// @TODO Worker動く迄pending
 describe('GPIOPort', () => {
   var port;
   beforeEach(()=> {
-    navigator.mozGpio.export = jasmine.createSpy();
     port = new GPIOPort(256);
   });
   describe('instance', () => {
     it('create', () => {
       expect(port).not.toBeUndefined();
-      expect(navigator.mozGpio.export).toHaveBeenCalled();
-      expect(navigator.mozGpio.export).toHaveBeenCalledWith(256);
     });
   });
   describe('propaty(default)', () => {
@@ -22,17 +20,11 @@ describe('GPIOPort', () => {
   describe('export', ()=> {
 
     describe('success', ()=> {
-      beforeEach(()=> {
-        navigator.mozGpio.setDirection =  jasmine.createSpy('setDirection');
-        port.__checkValue =  jasmine.createSpy('__checkValue');
-      });
       it('direction of out', done=> {
         port.export('out')
           .then(()=> {
             expect(port.exported).toBe(true);
             expect(port.direction).toBe('out');
-            expect(navigator.mozGpio.setDirection).toHaveBeenCalled();
-            expect(navigator.mozGpio.setDirection).toHaveBeenCalledWith(256, true);
           })
           .then(done)
           .catch(e=> expect(e.message).toBe('MATCH'));
@@ -45,9 +37,6 @@ describe('GPIOPort', () => {
             jasmine.clock().tick(100);
             expect(port.exported).toBe(true);
             expect(port.direction).toBe('in');
-            expect(navigator.mozGpio.setDirection).toHaveBeenCalled();
-            expect(navigator.mozGpio.setDirection).toHaveBeenCalledWith(256, false);
-            expect(port.__checkValue).toHaveBeenCalled();
             jasmine.clock().uninstall();
           })
           .then(done)
@@ -80,14 +69,12 @@ describe('GPIOPort', () => {
     beforeEach(done=> port.export('in').then(done));
     describe('sucess', ()=> {
       it('Call resolver accept(value) method with port value as value argument. Abort these steps', done=> {
-        navigator.mozGpio.getValue = jasmine.createSpy().and.returnValue(1);
         port.read()
           .then(result=> {
             expect(result).toBe(1);
-            expect(navigator.mozGpio.getValue).toHaveBeenCalled();
-            expect(navigator.mozGpio.getValue).toHaveBeenCalledWith(256);
             done();
           });
+        setTimeout(()=> window.WorkerOvserve.notify('gpio.getValue.256', { value: 1 }), 100);
       });
     });
 
@@ -115,12 +102,9 @@ describe('GPIOPort', () => {
     beforeEach(done=> port.export('out').then(done));
     describe('sucess', ()=> {
       it('Call resolver accept(value) method with port value as value argument. Abort these steps', done=> {
-        navigator.mozGpio.setValue = jasmine.createSpy('setValue');
         port.write(1)
           .then(result=> {
             expect(result).toBe(1);
-            expect(navigator.mozGpio.setValue).toHaveBeenCalled();
-            expect(navigator.mozGpio.setValue).toHaveBeenCalledWith(256, 1);
             done();
           });
       });
@@ -152,44 +136,17 @@ describe('GPIOPort', () => {
     });
   });
   describe('onchange', ()=> {
-    it('spec...');
-  });
-  describe('== private method ==', ()=> {
-    describe('__checkValue(onchange event impliments)', ()=> {
-      beforeEach(()=> {
-        navigator.mozGpio.getValue = jasmine.createSpy().and.returnValue(1);
-        port.onchange = jasmine.createSpy('onchange');
-        port.exported = true;
-        port.direction = 'in';
-      });
-
-      it('If firing the event is there value is different', done=> {
-        port.value = 0;
-        port.__checkValue(port)
-          .then(()=> {
-            expect(port.onchange).toHaveBeenCalled();
-            expect(port.onchange).toHaveBeenCalledWith(port);
-            done();
-          });
-      });
-
-      it('Value does not ignite it the same', done=> {
-        port.value = 1;
-        port.__checkValue(port)
-            .then(()=> {
-              expect(port.onchange).not.toHaveBeenCalled();
-              done();
-            });
-      });
-
-      it('If the event is not set', done=> {
-        port.onchange = void 0;
-        port.value = 0;
-        port.__checkValue(port)
-            .then(()=> {
-              done();
-            });
-      });
+    beforeEach(()=> {
+      port.onchange = jasmine.createSpy('onchange');
+    });
+    it('change value to onchange event', done=>  {
+      port.export('in')
+        .then(()=> {
+          window.WorkerOvserve.notify('gpio.onchange.256', { value: 1 });
+          expect(port.onchange).toHaveBeenCalled();
+          expect(port.onchange).toHaveBeenCalledWith(1);
+          done();
+        })
     });
   });
 });

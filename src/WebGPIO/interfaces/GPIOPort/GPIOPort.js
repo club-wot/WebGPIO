@@ -11,7 +11,10 @@ var GPIOPort = function (portNumber) {
 GPIOPort.prototype = {
   init: function (portNumber) {
 
-    navigator.mozGpio.export(portNumber);
+    window.WorkerOvserve.notify('gpio', {
+      method: 'gpio.export',
+      portNumber: portNumber,
+    });
 
     /**
     * The portNumber attribute must return the GPIO port number assigned to the GPIOPort object.
@@ -49,9 +52,7 @@ GPIOPort.prototype = {
     **/
     this.exported = false;
 
-    this._interval = 30;
     this.value = null;
-    this._timer = null;
     this._DEVICES = 'CHIRIMEN';
   },
 
@@ -72,17 +73,27 @@ GPIOPort.prototype = {
   **/
   export: function (direction) {
 
-    var directMap = {
-      in: ()=> this._timer = setInterval(()=> this.__checkValue(this), this._interval),
-      out: ()=> this._timer ? clearInterval(this._timer) : 0,
+    var onChangeEvent = (data) => {
+      if (typeof (this.onchange) === 'function') {
+        this.onchange(data.value);
+      }
     };
 
     var exportGPIO = (resolve, reject)=> {
-      var directFnc = directMap[direction];
 
-      if (directFnc) {
-        navigator.mozGpio.setDirection(this.portNumber, direction === DIRECTION_MODE.OUT);
-        directFnc();
+      if (direction === DIRECTION_MODE.OUT || direction === DIRECTION_MODE.IN) {
+        window.WorkerOvserve.notify('gpio', {
+          method: 'gpio.setDirection',
+          portNumber: this.portNumber,
+          direction: direction === DIRECTION_MODE.OUT,
+        });
+
+        if (direction === DIRECTION_MODE.IN) {
+          window.WorkerOvserve.observe(`gpio.onchange.${this.portNumber}`, onChangeEvent);
+        }else {
+          window.WorkerOvserve.unobserve(`gpio.onchange.${this.portNumber}`, onChangeEvent);
+        }
+
         resolve();
       }else {
         reject(new Error('InvalidAccessError'));
@@ -93,9 +104,6 @@ GPIOPort.prototype = {
       this.direction = direction;
       this.exported = true;
 
-      // console.log('PORT_CONFIG');
-      // console.log(PORT_CONFIG[this._DEVICES].PORTS, this.portNumber);
-      // console.log(PORT_CONFIG[this._DEVICES].PORTS[this.portNumber]);
       this.pinName = PORT_CONFIG[this._DEVICES].PORTS[this.portNumber].pinName;
       this.portName = PORT_CONFIG[this._DEVICES].PORTS[this.portNumber].portName;
       return event;
@@ -134,7 +142,19 @@ GPIOPort.prototype = {
       resolve();
     };
 
-    var readGPIO = ()=> navigator.mozGpio.getValue(this.portNumber);
+    //var readGPIO = ()=> navigator.mozGpio.getValue(this.portNumber);
+    var readGPIO = () => new Promise((resolve, reject) => {
+
+      window.WorkerOvserve.notify('gpio', {
+        method: 'gpio.getValue',
+        portNumber: this.portNumber,
+      });
+
+      window.WorkerOvserve.observe(`gpio.getValue.${this.portNumber}`, (workerData) => {
+        resolve(workerData.value);
+      });
+
+    });
 
     return new Promise(validation)
       .then(readGPIO);
@@ -160,7 +180,12 @@ GPIOPort.prototype = {
 
     var writeGPIO = ()=> {
       this.value = value;
-      navigator.mozGpio.setValue(this.portNumber, this.value);
+
+      window.WorkerOvserve.notify('gpio', {
+        method: 'gpio.setValue',
+        portNumber: this.portNumber,
+        value: this.value,
+      });
       return this.value;
     };
 
@@ -193,26 +218,5 @@ GPIOPort.prototype = {
   **/
   __isOutput: function () {
     return this.direction === DIRECTION_MODE.OUT;
-  },
-
-  /**
-  * on change event observer
-  * @private
-  * @return {Promise}
-  **/
-  __checkValue: function (port) {
-    return port.read()
-      .then(value => {
-        if (parseInt(value) != parseInt(port.value)) {
-          if (typeof (port.onchange) === 'function') {
-            // fire GPIOChangeEvent
-            port.onchange(port);
-          }else {
-            console.log('port.onchange is not a function.');
-          }
-
-          port.value = value;
-        }
-      });
   },
 };

@@ -16,7 +16,6 @@ describe('I2CPort', () => {
   });
   describe('method', ()=> {
     it('open', done=> {
-      navigator.mozI2c.read = jasmine.createSpy().and.returnValue(100);
       var promise = port.open(0x41);
       expect(promise).toEqual(jasmine.any(Promise));
       promise.then(slaveDevice=> {

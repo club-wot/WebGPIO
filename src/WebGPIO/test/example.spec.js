@@ -23,8 +23,6 @@ describe('example', () => {
     });
   });
   it('4.4 Activating a GPIO port and read the value (CHIRIMEN CN.1 pin2)', done=> {
-    navigator.mozGpio.export = jasmine.createSpy();
-    navigator.mozGpio.getValue = jasmine.createSpy().and.returnValue(1);
 
     navigator.requestGPIOAccess()
       .then(gpioAccess=> gpioAccess.ports.get(256))
@@ -33,10 +31,10 @@ describe('example', () => {
       .then(args=>{
         expect(args.port.exported).toBe(true);
         expect(args.port.direction).toBe('in');
-        expect(navigator.mozGpio.setDirection).toHaveBeenCalled();
       })
       .then(done)
       .catch(e=> expect(e.message).toBe('EXCEPTION'));
+    setTimeout(()=> window.WorkerOvserve.notify('gpio.getValue.256', { value: 1 }), 10);
   });
   it('4.5 Listening to changes of a GPIO port value (CHIRIMEN CN.1 pin2)');
   it('4.6 Listening to changes of multiple GPIO port values (CHIRIMEN CN.1 pin2)');

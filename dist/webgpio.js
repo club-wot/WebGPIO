@@ -65,7 +65,10 @@ var GPIOPort = function (portNumber) {
 GPIOPort.prototype = {
   init: function (portNumber) {
 
-    navigator.mozGpio.export(portNumber);
+    window.WorkerOvserve.notify('gpio', {
+      method: 'gpio.export',
+      portNumber: portNumber,
+    });
 
     /**
     * The portNumber attribute must return the GPIO port number assigned to the GPIOPort object.
@@ -103,9 +106,7 @@ GPIOPort.prototype = {
     **/
     this.exported = false;
 
-    this._interval = 30;
     this.value = null;
-    this._timer = null;
     this._DEVICES = 'CHIRIMEN';
   },
 
@@ -126,17 +127,27 @@ GPIOPort.prototype = {
   **/
   export: function (direction) {
 
-    var directMap = {
-      in: ()=> this._timer = setInterval(()=> this.__checkValue(this), this._interval),
-      out: ()=> this._timer ? clearInterval(this._timer) : 0,
+    var onChangeEvent = (data) => {
+      if (typeof (this.onchange) === 'function') {
+        this.onchange(data.value);
+      }
     };
 
     var exportGPIO = (resolve, reject)=> {
-      var directFnc = directMap[direction];
 
-      if (directFnc) {
-        navigator.mozGpio.setDirection(this.portNumber, direction === DIRECTION_MODE.OUT);
-        directFnc();
+      if (direction === DIRECTION_MODE.OUT || direction === DIRECTION_MODE.IN) {
+        window.WorkerOvserve.notify('gpio', {
+          method: 'gpio.setDirection',
+          portNumber: this.portNumber,
+          direction: direction === DIRECTION_MODE.OUT,
+        });
+
+        if (direction === DIRECTION_MODE.IN) {
+          window.WorkerOvserve.observe(`gpio.onchange.${this.portNumber}`, onChangeEvent);
+        }else {
+          window.WorkerOvserve.unobserve(`gpio.onchange.${this.portNumber}`, onChangeEvent);
+        }
+
         resolve();
       }else {
         reject(new Error('InvalidAccessError'));
@@ -147,9 +158,6 @@ GPIOPort.prototype = {
       this.direction = direction;
       this.exported = true;
 
-      // console.log('PORT_CONFIG');
-      // console.log(PORT_CONFIG[this._DEVICES].PORTS, this.portNumber);
-      // console.log(PORT_CONFIG[this._DEVICES].PORTS[this.portNumber]);
       this.pinName = PORT_CONFIG[this._DEVICES].PORTS[this.portNumber].pinName;
       this.portName = PORT_CONFIG[this._DEVICES].PORTS[this.portNumber].portName;
       return event;
@@ -188,7 +196,19 @@ GPIOPort.prototype = {
       resolve();
     };
 
-    var readGPIO = ()=> navigator.mozGpio.getValue(this.portNumber);
+    //var readGPIO = ()=> navigator.mozGpio.getValue(this.portNumber);
+    var readGPIO = () => new Promise((resolve, reject) => {
+
+      window.WorkerOvserve.notify('gpio', {
+        method: 'gpio.getValue',
+        portNumber: this.portNumber,
+      });
+
+      window.WorkerOvserve.observe(`gpio.getValue.${this.portNumber}`, (workerData) => {
+        resolve(workerData.value);
+      });
+
+    });
 
     return new Promise(validation)
       .then(readGPIO);
@@ -214,7 +234,12 @@ GPIOPort.prototype = {
 
     var writeGPIO = ()=> {
       this.value = value;
-      navigator.mozGpio.setValue(this.portNumber, this.value);
+
+      window.WorkerOvserve.notify('gpio', {
+        method: 'gpio.setValue',
+        portNumber: this.portNumber,
+        value: this.value,
+      });
       return this.value;
     };
 
@@ -248,27 +273,6 @@ GPIOPort.prototype = {
   __isOutput: function () {
     return this.direction === DIRECTION_MODE.OUT;
   },
-
-  /**
-  * on change event observer
-  * @private
-  * @return {Promise}
-  **/
-  __checkValue: function (port) {
-    return port.read()
-      .then(value => {
-        if (parseInt(value) != parseInt(port.value)) {
-          if (typeof (port.onchange) === 'function') {
-            // fire GPIOChangeEvent
-            port.onchange(port);
-          }else {
-            console.log('port.onchange is not a function.');
-          }
-
-          port.value = value;
-        }
-      });
-  },
 };
 
 // document
@@ -280,6 +284,94 @@ var GPIOPortMap = Map;
 if (!navigator.requestGPIOAccess) {
   navigator.requestGPIOAccess = function () {
     return new Promise(resolve=> resolve(new GPIOAccess()));
+  };
+}
+
+var ab2json = (dataBuffer) => JSON.parse(String.fromCharCode.apply(null, new Uint16Array(dataBuffer)));
+var json2ab = (jsonData) => {
+  var strJson = JSON.stringify(jsonData);
+  var buf = new ArrayBuffer(strJson.length * 2);
+  var uInt8Array = new Uint16Array(buf);
+  for (var i = 0, strLen = strJson.length; i < strLen; i++) {
+    uInt8Array[i] = strJson.charCodeAt(i);
+  }
+
+  return uInt8Array;
+};
+
+/**
+ * @example setting ovserve function
+ *   global.MockOvserve.observe('xxxxx_xxxxx_xxxxx', function(updateJson){
+ *     stateCtrl.setJsonData(updateJson);
+ *   });
+ *
+ * @example nofify method (parameter single only)
+ *   global.MockOvserve.notify('xxxxx_xxxxx_xxxxx', { param: 'PARAM' });
+ **/
+window.WorkerOvserve = window.WorkerOvserve || (function () {
+
+  function Ovserve() {
+    this._Map = new Map();
+  }
+
+  // set ovserver
+  Ovserve.prototype.observe = function (name, fnc) {
+    var funcs = this._Map.get(name) || [];
+    funcs.push(fnc);
+    this._Map.set(name, funcs);
+  };
+
+  // remove ovserver
+  Ovserve.prototype.unobserve = function (name, func) {
+    var funcs = this._Map.get(name) || [];
+    this._Map.set(name, funcs.filter(function (_func) {
+      return _func !== func;
+    }));
+  };
+
+  // notify ovserve
+  Ovserve.prototype.notify = function (name) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    /* istanbul ignore next */
+    (this._Map.get(name) || []).forEach(function (func, index) {
+      func.apply(null, args);
+    });
+  };
+
+  return new Ovserve();
+})();
+
+/* istanbul ignore next */
+if (window.Worker) {
+
+  var current = (function () {
+    if (document.currentScript) {
+      return document.currentScript.src;
+    } else {
+      var scripts = document.getElementsByTagName('script'),
+      script = scripts[scripts.length - 1];
+      if (script.src) {
+        return script.src;
+      }
+    }
+  })();
+
+  var _worker = new Worker(`${current.substr(0, current.lastIndexOf('/'))}/worker.js`);
+
+  // @MEMO gpioとi2cのObserverを分けた意味は「まだ」特にない
+  window.WorkerOvserve.observe('gpio', function (jsonData) {
+    var ab = json2ab(jsonData);
+    _worker.postMessage(ab.buffer, [ab.buffer]);
+  });
+
+  window.WorkerOvserve.observe('i2c', function (jsonData) {
+    var ab = json2ab(jsonData);
+    _worker.postMessage(ab.buffer, [ab.buffer]);
+  });
+
+  _worker.onmessage = function (e) {
+    var data = ab2json(e.data);
+    window.WorkerOvserve.notify(data.method, data);
   };
 }
 

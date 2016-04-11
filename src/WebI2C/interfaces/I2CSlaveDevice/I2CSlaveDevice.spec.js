@@ -1,6 +1,9 @@
 describe('I2CSlaveDevice', () => {
   var slaveDevice;
-  beforeEach(()=> slaveDevice = new I2CSlaveDevice(2));
+  beforeEach(()=> {
+    slaveDevice = new I2CSlaveDevice(2, 0x41);
+    window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice' });
+  });
   describe('instance', () => {
     it('create', () => {
       expect(slaveDevice).not.toBeUndefined();
@@ -11,49 +14,41 @@ describe('I2CSlaveDevice', () => {
   });
   describe('propaty (default)', ()=> {
     it('portNumber', ()=>expect(slaveDevice.portNumber).toEqual(2));
-    it('slaveAddress', ()=>expect(slaveDevice.slaveAddress).toBeUndefined());
-    it('slaveDevice', ()=>expect(slaveDevice.slaveDevice).toBeUndefined());
+    it('slaveAddress', ()=>expect(slaveDevice.slaveAddress).toBe(65));
+    it('slaveDevice', ()=>expect(slaveDevice.slaveDevice).toBe('slaveDevice'));
   });
   describe('method', ()=> {
     it('read8', done=> {
-      navigator.mozI2c.read = jasmine.createSpy().and.returnValue(2);
       slaveDevice.read8(0x41)
         .then(value=>{
           expect(value).toEqual(2);
-          expect(navigator.mozI2c.read).toHaveBeenCalled();
-          expect(navigator.mozI2c.read).toHaveBeenCalledWith(2,65, true);
         })
         .then(()=> done());
+      window.WorkerOvserve.notify('i2c.read.2.65', { value: 2 });
     });
     it('read16', done=> {
-      navigator.mozI2c.read = jasmine.createSpy().and.returnValue(2);
       slaveDevice.read16(0x41)
         .then(value=>{
           expect(value).toEqual(2);
-          expect(navigator.mozI2c.read).toHaveBeenCalled();
-          expect(navigator.mozI2c.read).toHaveBeenCalledWith(2,65, true);
         })
         .then(()=> done());
+      window.WorkerOvserve.notify('i2c.read.2.65', { value: 2 });
     });
     it('write8', done=> {
-      navigator.mozI2c.write = jasmine.createSpy().and.returnValue(2);
       slaveDevice.write8(0x41, 0x42)
         .then(value=>{
           expect(value).toEqual(66);
-          expect(navigator.mozI2c.write).toHaveBeenCalled();
-          expect(navigator.mozI2c.write).toHaveBeenCalledWith(2,65,66, true);
         })
         .then(()=> done());
+      window.WorkerOvserve.notify('i2c.write.2.65', { value: 66 });
     });
     it('write16', done=> {
-      navigator.mozI2c.write = jasmine.createSpy().and.returnValue(2);
       slaveDevice.write16(0x41, 0x42)
         .then(value=>{
           expect(value).toEqual(66);
-          expect(navigator.mozI2c.write).toHaveBeenCalled();
-          expect(navigator.mozI2c.write).toHaveBeenCalledWith(2,65,66, true);
         })
         .then(()=> done());
+      window.WorkerOvserve.notify('i2c.write.2.65', { value: 66 });
     });
   });
 });

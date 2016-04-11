@@ -7,4 +7,5 @@ gulp.task('test', cb => runSequence(
 
 gulp.task('test:watch', cb => runSequence(
   'karma:watch',
+  'browser-sync:report',
   cb));
