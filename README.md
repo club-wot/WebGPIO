@@ -220,7 +220,7 @@ gulp demo
 
 ## Related Links
 
- + [CHIRIMEN any-issues](https://github.com/chirimen-oh/any-issues);
+ + [chirimen-oh any-issues](https://github.com/chirimen-oh/any-issues);
 
 ## License
 
