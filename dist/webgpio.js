@@ -4,7 +4,7 @@
 };
 
 const IO = {
-  ROW: 0,
+  LOW: 0,
   HIGH: 1,
 };
 
@@ -225,7 +225,7 @@ GPIOPort.prototype = {
         reject(new Error('InvalidAccessError'));
       } else if (!this.__isOutput()) {
         reject(new Error('OperationError'));
-      } else if (value !== IO.ROW && value !== IO.HIGH) {
+      } else if (value !== IO.LOW && value !== IO.HIGH) {
         reject(new Error('OperationError'));
       }
 
