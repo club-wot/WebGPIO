@@ -1,4 +1,4 @@
 const IO = {
-  ROW: 0,
+  LOW: 0,
   HIGH: 1,
 };

@@ -126,7 +126,7 @@ describe('GPIOPort', () => {
             done();
           });
       });
-      it('if argment value not ROW or HIGH to the OperationError', done=> {
+      it('if argment value not LOW or HIGH to the OperationError', done=> {
         port.write(-1)
           .catch(e=> {
             expect(e).toEqual(new Error('OperationError'));
