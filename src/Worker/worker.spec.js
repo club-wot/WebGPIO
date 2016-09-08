@@ -187,4 +187,143 @@ describe('worker.onmessage', () => {
       }));
     }).toThrow('Unexpected case to worker method');
   });
+
+  describe('worker.eventQueue', () => {
+    it('new', ()=> {
+      let que = new Queue();
+      expect(que.__que).toEqual([]);
+    });
+    it('push and view', ()=> {
+      let que = new Queue();
+      let baseTime = new Date(2013, 9, 23);
+      jasmine.clock().mockDate(baseTime);
+      que.push('type',{ test:'test' });
+      expect(que.view()).toEqual([ { type: 'type', timing: 1382454000000, value: { test: 'test' } } ]);
+    });
+    it('push overflow (max 499) & queue', ()=>{
+      let que = new Queue();
+
+      [for (i of Array(1000).keys()) i].forEach(val=>que.push('type',val));
+      expect(que.view().length).toBe(499);
+      expect(que.view()[0]).toEqual({type: 'type', timing: 1382454000000, value: 501 });
+      expect(que.view()[498]).toEqual({type: 'type', timing: 1382454000000, value: 999 });
+    });
+  });
+
+  describe('debug.polyfill', () => {
+    it('debug.polyfill.gpio.value.change',()=>{
+      navigator.mozGpio.isPolyfill = true;
+      navigator.mozGpio.setValue = jasmine.createSpy();
+      onmessage(createMessageEvent({
+        method: 'debug.polyfill.gpio.value.change',
+        portNumber: 257,
+        value: 1,
+      }));
+      expect(navigator.mozGpio.setValue).toHaveBeenCalled();
+      expect(navigator.mozGpio.setValue).toHaveBeenCalledWith(257, 1);
+      navigator.mozGpio.isPolyfill = void 0;
+
+      navigator.mozGpio.setValue = jasmine.createSpy();
+      onmessage(createMessageEvent({
+        method: 'debug.polyfill.gpio.value.change',
+        portNumber: 257,
+        value: 1,
+      }));
+      expect(navigator.mozGpio.setValue).not.toHaveBeenCalled();
+      navigator.mozGpio.isPolyfill = true;
+    });
+    it('debug.polyfill.i2c.read.resolve', done=>{
+      navigator.mozI2c.isPolyfill = true;
+
+      onmessage(createMessageEvent({
+        method: 'debug.polyfill.i2c.read.resolve',
+        portNumber: 256,
+        readRegistar: 0x43,
+        aIsOctet: true,
+        value: 100,
+      }));
+
+      window.postMessage = (value)=>{
+        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 100 });
+        navigator.mozI2c.isPolyfill = void 0;
+        onmessage(createMessageEvent({method: 'debug.polyfill.i2c.read.resolve'}));
+        navigator.mozI2c.isPolyfill = true;
+
+        done();
+      };
+
+      onmessage(createMessageEvent({
+        method: 'i2c.read',
+        portNumber: 256,
+        readRegistar: 0x43,
+        aIsOctet: true,
+      }));
+
+    });
+    it('debug.polyfill.i2c.read.reject', done=>{
+      navigator.mozI2c.isPolyfill = true;
+
+      onmessage(createMessageEvent({
+        method: 'debug.polyfill.i2c.read.reject',
+        portNumber: 256,
+        readRegistar: 0x43,
+        aIsOctet: true,
+        value: 'Reject!!',
+      }));
+
+      window.postMessage = (value)=>{
+        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 'Reject!!' });
+        navigator.mozI2c.isPolyfill = void 0;
+        onmessage(createMessageEvent({method: 'debug.polyfill.i2c.read.reject'}));
+        navigator.mozI2c.isPolyfill = true;
+
+        done();
+      };
+
+      onmessage(createMessageEvent({
+        method: 'i2c.read',
+        portNumber: 256,
+        readRegistar: 0x43,
+        aIsOctet: true,
+      }));
+
+    });
+    it('debug.polyfill.events.get', done=> {
+
+      window.postMessage = (value)=>{
+        var jsonVal = ab2jsonWorker(value);
+        
+        if (jsonVal.method === 'debug.polyfill.events.get') {
+          var dataObj = JSON.parse(jsonVal.value);
+          expect(dataObj[0]).toEqual({  
+               type:'postMessage',
+               timing:1382454000000,
+               value:{  
+                  method:'debug.polyfill.events.clear'
+               }
+            });
+          expect(dataObj[1]).toEqual({
+               type:'onmessage',
+               timing:1382454000000,
+               value:{  
+                  method:'debug.polyfill.events.get'
+               }
+            });
+          setTimeout(()=> done(), 100);
+        } else {
+          expect(jsonVal.method).toBe('debug.polyfill.events.clear');
+        }
+        
+      };
+      onmessage(createMessageEvent({
+        method: 'debug.polyfill.events.clear'
+      }));
+
+      onmessage(createMessageEvent({
+        method: 'debug.polyfill.events.get'
+      }));
+
+    });
+  });
+
 });

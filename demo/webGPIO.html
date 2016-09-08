@@ -5,10 +5,20 @@
   <meta charset="UTF-8">
   <title>WebGPIO-I2C</title>
 </head>
-
 <body>
-  <script src="./mozGpio/mozGpio.js"></script>
+
+  <div class="chirimen-sim"></div>
+
   <script src="./webgpio.js"></script>
   <script src="./gpioDemo.js"></script>
+  <!-- simulator -->
+  <script src="./simulator.js"></script>
+  <script>
+    // args: channnel, gpio(in), gnd
+    //chirimenSimulator.writeLED(1, 8, 1);
+    chirimenSimulator.writePushBtn(1, 9, 1);
+    // drow channel propary
+    chirimenSimulator.writePropaty();
+  </script>
 </body>
 </html>

@@ -5,16 +5,24 @@ window.addEventListener('load', function (){
         return gpioAccess;
     }).then(gpio=>{
       // out check
-      // {
-      //   var port = gpio.ports.get(256);
-      //   var v = 0;
-      //   port.export("out").then(()=>{
-      //     setInterval(function(){
-      //       v = v ? 0 : 1;
-      //       port.write(v);
-      //     },3000);
-      //   });
-      // }
+      {
+        var port = gpio.ports.get(197);
+        var v = 0;
+        port.export("out").then(()=>{
+          setInterval(function(){
+            v = v ? 0 : 1;
+            port.write(v);
+          },3000);
+        });
+/**
+window.WorkerOvserve.observe(`debug.polyfill.events.get`, (workerData) => {
+  console.log('output', workerData)
+});
+window.WorkerOvserve.notify('gpio', {
+  method: 'debug.polyfill.events.get'
+});
+
+      }
       // in check
       {
         var portOut = gpio.ports.get(257);
@@ -26,6 +34,14 @@ window.addEventListener('load', function (){
         portOut.onchange = function(data){
           console.log('onchange', data);
         }
+*/
+        /**
+window.WorkerOvserve.notify('gpio', {
+    method: 'debug.polyfill.gpio.value.change',
+    portNumber: 257,
+    value: 1,
+  });
+        **/
       }
 
   }).catch(error=>{

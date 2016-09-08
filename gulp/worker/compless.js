@@ -22,7 +22,7 @@ gulp.task('compless:gpio', ()=> {
       plugins: ['transform-es2015-arrow-functions'],
     }))
     .pipe(uglify({
-      compress:true,
+      compress: true,
     }))
     .pipe(gulp.dest(config.rootDirs.dist));
 });
@@ -40,7 +40,7 @@ gulp.task('compless:i2c', ()=> {
       plugins: ['transform-es2015-arrow-functions'],
     }))
     .pipe(uglify({
-      compress:true,
+      compress: true,
     }))
     .pipe(gulp.dest(config.rootDirs.dist));
 });
@@ -62,4 +62,23 @@ gulp.task('compless:worker', ()=> {
   //   compress:true,
   // }))
   // .pipe(gulp.dest(config.rootDirs.dist));
+});
+
+
+gulp.task('compless:simulator', ()=> {
+  return gulp.src(config.paths.script.simulator.src)
+    .pipe(concat('simulator.js'))
+    .pipe(insert.wrap('(function(){', '})()'))
+    .pipe(gulp.dest(config.rootDirs.dist))
+    .pipe(rename({
+      suffix: '.min',
+    }))
+    .pipe(babel({
+      presets: [],
+      plugins: ['transform-es2015-arrow-functions', 'syntax-class-properties'],
+    }))
+    .pipe(uglify({
+      compress: true,
+    }))
+    .pipe(gulp.dest(config.rootDirs.dist));
 });

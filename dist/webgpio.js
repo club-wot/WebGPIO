@@ -254,7 +254,7 @@ GPIOPort.prototype = {
   * @todo: During implementation
   * @type {GPIOChangeEvent}
   **/
-  onchange:null,
+  onchange: null,
 
   // --- private method
 
@@ -275,17 +275,17 @@ GPIOPort.prototype = {
   },
 };
 
-// document
-// https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPortMap-interface
-
-var GPIOPortMap = Map;
-
 /* istanbul ignore else */
 if (!navigator.requestGPIOAccess) {
   navigator.requestGPIOAccess = function () {
     return new Promise(resolve=> resolve(new GPIOAccess()));
   };
 }
+
+// document
+// https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPortMap-interface
+
+var GPIOPortMap = Map;
 
 var ab2json = (dataBuffer) => JSON.parse(String.fromCharCode.apply(null, new Uint16Array(dataBuffer)));
 var json2ab = (jsonData) => {

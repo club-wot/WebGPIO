@@ -11,6 +11,7 @@ const ROOT_DIRS = {
   srcI2C: `${cwd}/src/WebI2C`,
   srcCOMMON: `${cwd}/src/common`,
   srcWORKER: `${cwd}/src/Worker`,
+  srcSIMULATOR: `${cwd}/src/simulator`,
   tmp: `${cwd}/.tmp`,
   node: `${cwd}/node_modules`,
   report: `${cwd}/report`,

@@ -29,7 +29,7 @@ gulp.task('karma:watch', () => {
           type: 'text', subdir: 'text',
         }, {
           type: 'html', subdir: 'html',
-        }, ],
+        },],
       },
       singleRun: false,
       autoWatch: true,
@@ -48,7 +48,7 @@ gulp.task('karma:watch', () => {
           type: 'text', subdir: 'text',
         }, {
           type: 'html', subdir: 'html',
-        },],
+        }, ],
       },
       singleRun: false,
       autoWatch: true,
@@ -65,7 +65,7 @@ gulp.task('karma:watch', () => {
               type: 'text', subdir: 'text',
             }, {
               type: 'html', subdir: 'html',
-            },],
+            }, ],
           },
           singleRun: false,
           autoWatch: true,

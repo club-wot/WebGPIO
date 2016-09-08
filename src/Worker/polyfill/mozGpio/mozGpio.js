@@ -1,8 +1,9 @@
 /* istanbul ignore next */
 if (!navigator.mozGpio) {
   navigator.mozGpio = new Object();
+  navigator.mozGpio.isPolyfill = true;
   navigator.mozGpio.direction = '';
-  navigator.mozGpio.value = 0;
+  navigator.mozGpio.value = {};
   navigator.mozGpio.export = function (portno) {
   };
 
@@ -10,11 +11,11 @@ if (!navigator.mozGpio) {
   };
 
   navigator.mozGpio.setValue = function (portno, value) {
-    console.log('setValue(' + portno + ',' + value + ')');
+    navigator.mozGpio.value[portno] = value;
   };
 
   navigator.mozGpio.getValue = function (portNumber) {
-    return navigator.mozGpio.value;
+    return Promise.resolve(navigator.mozGpio.value[portNumber] || 0);
   };
 
   navigator.mozGpio.setDirection = function (portno, direction) {

@@ -200,7 +200,7 @@ GPIOPort.prototype = {
   * @todo: During implementation
   * @type {GPIOChangeEvent}
   **/
-  onchange:null,
+  onchange: null,
 
   // --- private method
 
