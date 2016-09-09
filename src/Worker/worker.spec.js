@@ -205,7 +205,7 @@ describe('worker.onmessage', () => {
     });
     it('push and view', ()=> {
       let que = new Queue();
-      let baseTime = new Date(2013, 9, 23);
+      let baseTime = new Date(2013, 9, 23, 0, 0, 0, 0);
       jasmine.clock().mockDate(baseTime);
       que.push('type',{ test:'test' });
       expect(que.view()).toEqual([ { type: 'type', timing: 1382454000000, value: { test: 'test' } } ]);
@@ -303,6 +303,9 @@ describe('worker.onmessage', () => {
 
     });
     it('debug.polyfill.events.get', done=> {
+
+      let baseTime = new Date(2013, 9, 23, 0, 0, 0, 0);
+      jasmine.clock().mockDate(baseTime);
 
       window.postMessage = (value)=>{
         var jsonVal = ab2jsonWorker(value);

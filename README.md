@@ -215,7 +215,7 @@ chirimen CN1.2pin (pullup) connected
         <title>Test LED</title>
         <script src="./bower_components/webgpio/dist/webgpio.min.js"></script>
         <script src="./bower_components/webgpio/dist/simulator.min.js"></script>
-        <script src="main.js"></script>
+        <script src="./js/main.js"></script>
     </head>
     <body>
         <!-- drowing chirimen shimulator -->
