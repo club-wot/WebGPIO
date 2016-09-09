@@ -110,8 +110,10 @@ describe('worker.onmessage', () => {
     });
     it('gpio.getValue', done=>{
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'gpio.getValue.256', portNumber: 256, value: 1 });
-        done();
+        if (ab2jsonWorker(value).method === 'gpio.getValue.256'){
+          expect(ab2jsonWorker(value)).toEqual({ method: 'gpio.getValue.256', portNumber: 256, value: 1 });
+          done();
+        }
       };
       onmessage(createMessageEvent({
         method: 'gpio.getValue',
@@ -138,21 +140,29 @@ describe('worker.onmessage', () => {
       expect(navigator.mozI2c.open).toHaveBeenCalled();
       expect(navigator.mozI2c.open).toHaveBeenCalledWith(256);
     });
-    it('i2c.setDeviceAddress', ()=>{
+    it('i2c.setDeviceAddress', done=>{
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.setDeviceAddress.256', portNumber: 256 });
+        if(ab2jsonWorker(value).method === 'i2c.setDeviceAddress.256') {
+          expect(navigator.mozI2c.setDeviceAddress).toHaveBeenCalled();
+          expect(navigator.mozI2c.setDeviceAddress).toHaveBeenCalledWith(256, 64);
+          expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.setDeviceAddress.256', portNumber: 256 });
+          done();
+        }
       };
       onmessage(createMessageEvent({
         method: 'i2c.setDeviceAddress',
         portNumber: 256,
         slaveAddress: 0x40,
       }));
-      expect(navigator.mozI2c.setDeviceAddress).toHaveBeenCalled();
-      expect(navigator.mozI2c.setDeviceAddress).toHaveBeenCalledWith(256, 64);
     });
-    it('i2c.write', ()=>{
+    it('i2c.write', done=>{
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.write.256.65', portNumber: 256 });
+        if (ab2jsonWorker(value).method === 'i2c.write.256.65') {
+          expect(navigator.mozI2c.write).toHaveBeenCalled();
+          expect(navigator.mozI2c.write).toHaveBeenCalledWith(256, 65, 66, true);
+          expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.write.256.65', portNumber: 256 });
+          done();
+        }
       };
       onmessage(createMessageEvent({
         method: 'i2c.write',
@@ -161,13 +171,13 @@ describe('worker.onmessage', () => {
         value: 0x42,
         aIsOctet: true,
       }));
-      expect(navigator.mozI2c.write).toHaveBeenCalled();
-      expect(navigator.mozI2c.write).toHaveBeenCalledWith(256, 65, 66, true);
     });
     it('i2c.read', done=>{
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 1 });
-        done();
+        if(ab2jsonWorker(value).method === 'i2c.read.256.67') {
+          expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 1 });
+          done();
+        }
       };
       onmessage(createMessageEvent({
         method: 'i2c.read',
@@ -244,12 +254,14 @@ describe('worker.onmessage', () => {
       }));
 
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 100 });
-        navigator.mozI2c.isPolyfill = void 0;
-        onmessage(createMessageEvent({method: 'debug.polyfill.i2c.read.resolve'}));
-        navigator.mozI2c.isPolyfill = true;
+        if(ab2jsonWorker(value).method === 'i2c.read.256.67'){
+          expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 100 });
+          navigator.mozI2c.isPolyfill = void 0;
+          onmessage(createMessageEvent({method: 'debug.polyfill.i2c.read.resolve'}));
+          navigator.mozI2c.isPolyfill = true;
 
-        done();
+          done();
+        }
       };
 
       onmessage(createMessageEvent({
@@ -272,12 +284,14 @@ describe('worker.onmessage', () => {
       }));
 
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 'Reject!!' });
-        navigator.mozI2c.isPolyfill = void 0;
-        onmessage(createMessageEvent({method: 'debug.polyfill.i2c.read.reject'}));
-        navigator.mozI2c.isPolyfill = true;
+        if(ab2jsonWorker(value).method === 'i2c.read.256.67'){
+          expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 'Reject!!' });
+          navigator.mozI2c.isPolyfill = void 0;
+          onmessage(createMessageEvent({method: 'debug.polyfill.i2c.read.reject'}));
+          navigator.mozI2c.isPolyfill = true;
 
-        done();
+          done();
+        }
       };
 
       onmessage(createMessageEvent({
@@ -310,17 +324,15 @@ describe('worker.onmessage', () => {
                }
             });
           setTimeout(()=> done(), 100);
-        } else {
-          expect(jsonVal.method).toBe('debug.polyfill.events.clear');
+        } else if(jsonVal.method === 'debug.polyfill.events.clear') {
+          onmessage(createMessageEvent({
+            method: 'debug.polyfill.events.get'
+          }));
         }
-        
       };
-      onmessage(createMessageEvent({
-        method: 'debug.polyfill.events.clear'
-      }));
 
       onmessage(createMessageEvent({
-        method: 'debug.polyfill.events.get'
+        method: 'debug.polyfill.events.clear'
       }));
 
     });

@@ -64,7 +64,6 @@ gulp.task('compless:worker', ()=> {
   // .pipe(gulp.dest(config.rootDirs.dist));
 });
 
-
 gulp.task('compless:simulator', ()=> {
   return gulp.src(config.paths.script.simulator.src)
     .pipe(concat('simulator.js'))

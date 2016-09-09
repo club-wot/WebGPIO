@@ -6,7 +6,7 @@ window.addEventListener('load', function (){
     }).then(gpio=>{
       // out check
       {
-        var port = gpio.ports.get(197);
+        var port = gpio.ports.get(197); // cn1 : pin8
         var v = 0;
         port.export("out").then(()=>{
           setInterval(function(){
@@ -14,18 +14,10 @@ window.addEventListener('load', function (){
             port.write(v);
           },3000);
         });
-/**
-window.WorkerOvserve.observe(`debug.polyfill.events.get`, (workerData) => {
-  console.log('output', workerData)
-});
-window.WorkerOvserve.notify('gpio', {
-  method: 'debug.polyfill.events.get'
-});
-
       }
       // in check
       {
-        var portOut = gpio.ports.get(257);
+        var portOut = gpio.ports.get(199); // cn1 : pin10
         portOut.export("in")
           .then(()=> portOut.read())
           .then((v)=>{
@@ -34,14 +26,6 @@ window.WorkerOvserve.notify('gpio', {
         portOut.onchange = function(data){
           console.log('onchange', data);
         }
-*/
-        /**
-window.WorkerOvserve.notify('gpio', {
-    method: 'debug.polyfill.gpio.value.change',
-    portNumber: 257,
-    value: 1,
-  });
-        **/
       }
 
   }).catch(error=>{

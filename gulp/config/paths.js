@@ -32,7 +32,7 @@ const PATHS = {
         `${ROOT_DIRS.srcSIMULATOR}/**/!(*spec|*mock).js`,
         `${ROOT_DIRS.srcCOMMON}/config/**/!(*spec|*mock).js`,
         ],
-    }
+    },
   },
   test: {
     src: [

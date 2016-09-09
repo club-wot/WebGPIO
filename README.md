@@ -181,6 +181,104 @@ window.addEventListener('load', function (){
 
 ##### [spec examples(spec file link)](https://rawgit.com/browserobo/WebI2C/master/index.html#example)
 
+## use CHIRIMEN Simulator (Beta)
+
+ + gpio
+  + [x] show real time property
+  + [x] dummy Led
+  + [x] dummy Push Button
+ + i2c
+  + [ ] show real time property
+  + [ ] dummy ultrasonic ranging (SRF02)
+
+### install
+
+```sh
+bower install --save webgpio-polyfill
+```
+
+### Usage
+
+```html
+<script src="[bower_components path]/webgpio/dist/simulator.min.js"></script>
+```
+
+### example application code
+
+chirimen CN1.2pin (pullup) connected
+
+```html
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Test LED</title>
+        <script src="./bower_components/webgpio/dist/webgpio.min.js"></script>
+        <script src="./bower_components/webgpio/dist/simulator.min.js"></script>
+        <script src="main.js"></script>
+    </head>
+    <body>
+        <!-- drowing chirimen shimulator -->
+        <div class="chirimen-sim"></div>
+    </body>
+</html>
+
+```
+
+ + `./js/main.js`
+
+```javascript
+'use strict';
+
+window.addEventListener('load', function (){
+
+  // drowing dummy LED (CN1, pin:8)
+  chirimenSimulator.writeLED(1, 8, 1);
+
+  // drowing dummy push button (CN1, pin:10)
+  chirimenSimulator.writePushBtn(1, 10);
+
+  // drow channel propary
+  chirimenSimulator.writePropaty();
+  
+  navigator.requestGPIOAccess().then(
+    function(gpioAccess) {
+        console.log("GPIO ready!");
+        return gpioAccess;
+    }).then(gpio=>{
+      // out check
+      {
+        var port = gpio.ports.get(197); // cn1 : pin8
+        var v = 0;
+        port.export("out").then(()=>{
+          setInterval(function(){
+            v = v ? 0 : 1;
+            port.write(v);
+          },3000);
+        });
+      }
+      // in check
+      {
+        var portOut = gpio.ports.get(199); // cn1 : pin10
+        portOut.export("in")
+          .then(()=> portOut.read())
+          .then((v)=>{
+            console.log('demo read', v);
+          })
+        portOut.onchange = function(data){
+          console.log('onchange', data);
+        }
+      }
+
+  }).catch(error=>{
+    console.log("Failed to get GPIO access catch: " + error.message);
+  });
+}, false);
+
+```
+
+##### [spec examples(spec file link)](https://rawgit.com/browserobo/WebGPIO/master/index.html#example)
+
 ### build
 
 In the following command, concatenated file is output to the `./dist` directory.

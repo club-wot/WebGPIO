@@ -38,7 +38,6 @@ Queue.prototype.clear = function () {
   return this.__que = [];
 };
 
-
 var eventTrucker = new Queue();
 
 /**
@@ -112,6 +111,7 @@ onmessage =  (e) => {
       });
       break;
     case 'i2c.write':
+
       var value = navigator.mozI2c.write(data.portNumber, data.registerNumber, data.value, data.aIsOctet);
       prePostMessage({
         method: `${data.method}.${data.portNumber}.${data.registerNumber}`,
@@ -126,7 +126,7 @@ onmessage =  (e) => {
           portNumber: data.portNumber,
           value: value,
         });
-      }).catch(error=>{
+      }).catch(error=> {
         prePostMessage({
           method: `${data.method}.${data.portNumber}.${data.readRegistar}`,
           portNumber: data.portNumber,
@@ -168,7 +168,7 @@ onmessage =  (e) => {
       break;
     case 'debug.polyfill.events.clear':
       eventTrucker.clear();
-      prePostMessage({method: 'debug.polyfill.events.clear' });
+      prePostMessage({ method: 'debug.polyfill.events.clear' });
       break;
     default:
       throw 'Unexpected case to worker method';
