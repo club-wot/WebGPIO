@@ -145,13 +145,13 @@ GPIOPort.prototype = {
     //var readGPIO = ()=> navigator.mozGpio.getValue(this.portNumber);
     var readGPIO = () => new Promise((resolve, reject) => {
 
+      window.WorkerOvserve.observe(`gpio.getValue.${this.portNumber}`, (workerData) => {
+        resolve(workerData.value);
+      });
+
       window.WorkerOvserve.notify('gpio', {
         method: 'gpio.getValue',
         portNumber: this.portNumber,
-      });
-
-      window.WorkerOvserve.observe(`gpio.getValue.${this.portNumber}`, (workerData) => {
-        resolve(workerData.value);
       });
 
     });

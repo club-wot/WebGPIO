@@ -1,6 +1,9 @@
 describe('requestGPIOAccess', () => {
   var primise;
-  beforeEach(()=> primise = navigator.requestGPIOAccess());
+  beforeEach(()=> {
+    window.dummyWorker.allExport();
+    primise = navigator.requestGPIOAccess();
+  });
   describe('instance', () => {
     it('create', () => {
       expect(primise).not.toBeUndefined();

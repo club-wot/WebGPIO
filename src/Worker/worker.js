@@ -37,6 +37,10 @@ onmessage =  (e) => {
     /********************************/
     case 'gpio.export':
       navigator.mozGpio.export(data.portNumber);
+      postMessage({
+        method: `${data.method}.${data.portNumber}`,
+        portNumber: data.portNumber,
+      });
       break;
     case 'gpio.setDirection':
       navigator.mozGpio.setDirection(data.portNumber, data.direction);

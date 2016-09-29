@@ -19,11 +19,19 @@ GPIOAccess.prototype = {
   init: function (port) {
     this.ports = new GPIOPortMap();
     var convertToNumber = portStr => parseInt(portStr, 10);
-    var setPortMap = port=> this.ports.set(port, new GPIOPort(port));
+
+    //var setPortMap = port=> this.ports.set(port, new GPIOPort(port));
+    var makeChain = port => new Promise(resolve=> {
+      this.ports.set(port, new GPIOPort(port));
+      window.WorkerOvserve.observe(`gpio.export.${port}`, () => resolve());
+    });
+    var exportChain = (chain, next) => chain.then(next);
     /**
     * @todo How to get the pin list?
     ***/
-    Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).forEach(setPortMap);
+
+    //Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).forEach(setPortMap);
+    Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).map(makeChain).reduce(exportChain, Promise.resolve());
   },
 
   /**
@@ -199,13 +207,13 @@ GPIOPort.prototype = {
     //var readGPIO = ()=> navigator.mozGpio.getValue(this.portNumber);
     var readGPIO = () => new Promise((resolve, reject) => {
 
+      window.WorkerOvserve.observe(`gpio.getValue.${this.portNumber}`, (workerData) => {
+        resolve(workerData.value);
+      });
+
       window.WorkerOvserve.notify('gpio', {
         method: 'gpio.getValue',
         portNumber: this.portNumber,
-      });
-
-      window.WorkerOvserve.observe(`gpio.getValue.${this.portNumber}`, (workerData) => {
-        resolve(workerData.value);
       });
 
     });
