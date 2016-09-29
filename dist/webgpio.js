@@ -8,6 +8,7 @@ const IO = {
   HIGH: 1,
 };
 
+
 // document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
 
@@ -20,18 +21,17 @@ GPIOAccess.prototype = {
     this.ports = new GPIOPortMap();
     var convertToNumber = portStr => parseInt(portStr, 10);
 
-    //var setPortMap = port=> this.ports.set(port, new GPIOPort(port));
-    var makeChain = port => new Promise(resolve=> {
-      this.ports.set(port, new GPIOPort(port));
+    var makeChain = port => ()=> new Promise(resolve=> {
       window.WorkerOvserve.observe(`gpio.export.${port}`, () => resolve());
+      this.ports.set(port, new GPIOPort(port));
     });
-    var exportChain = (chain, next) => chain.then(next);
-    /**
-    * @todo How to get the pin list?
-    ***/
 
-    //Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).forEach(setPortMap);
-    Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).map(makeChain).reduce(exportChain, Promise.resolve());
+    var exportChain = (chain, next) => chain.then(next);
+
+    this.GPIOAccessThen = Object.keys(PORT_CONFIG.CHIRIMEN.PORTS)
+      .map(convertToNumber)
+      .map(makeChain)
+      .reduce(exportChain, Promise.resolve());
   },
 
   /**
@@ -57,7 +57,6 @@ GPIOAccess.prototype = {
   **/
   onchange: null,
 };
-
 
 
 // document
@@ -291,7 +290,10 @@ var GPIOPortMap = Map;
 /* istanbul ignore else */
 if (!navigator.requestGPIOAccess) {
   navigator.requestGPIOAccess = function () {
-    return new Promise(resolve=> resolve(new GPIOAccess()));
+    //return new Promise(resolve=> resolve(new GPIOAccess()));
+
+    var gpioAccess = new GPIOAccess();
+    return gpioAccess.GPIOAccessThen.then(()=> gpioAccess);
   };
 }
 

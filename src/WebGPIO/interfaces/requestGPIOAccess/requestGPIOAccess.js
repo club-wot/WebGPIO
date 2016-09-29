@@ -4,6 +4,6 @@ if (!navigator.requestGPIOAccess) {
     //return new Promise(resolve=> resolve(new GPIOAccess()));
 
     var gpioAccess = new GPIOAccess();
-    return gpioAccess.GPIOAccessThen.then(()=> gpioAccess)
+    return gpioAccess.GPIOAccessThen.then(()=> gpioAccess);
   };
 }
