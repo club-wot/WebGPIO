@@ -136,7 +136,6 @@ class ChirimenShim {
   **/
   writeLED(channel, gpioPin, gnd) {
     this.svgElements.forEach(svgElem=> {
-
       var ledId = `dummy-led-${channel}-${gpioPin}-${gnd}`;
 
       this.__JumperWire(svgElem.svg, channel, gpioPin, 158, 254, '#900');

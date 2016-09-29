@@ -1,4 +1,11 @@
 window.addEventListener('load', function (){
+
+  // args: channnel, gpio, gnd
+  chirimenSimulator.writeLED(1, 8, 1);
+  chirimenSimulator.writePushBtn(1, 10, 1);
+  // drow channel propary
+  chirimenSimulator.writePropaty();
+  
   navigator.requestGPIOAccess().then(
     function(gpioAccess) {
         console.log("GPIO ready!");
