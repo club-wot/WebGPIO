@@ -8,7 +8,6 @@ const IO = {
   HIGH: 1,
 };
 
-
 // document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
 
@@ -57,7 +56,6 @@ GPIOAccess.prototype = {
   **/
   onchange: null,
 };
-
 
 // document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPort-interface
@@ -296,6 +294,8 @@ if (!navigator.requestGPIOAccess) {
     return gpioAccess.GPIOAccessThen.then(()=> gpioAccess);
   };
 }
+
+
 
 var ab2json = (dataBuffer) => JSON.parse(String.fromCharCode.apply(null, new Uint16Array(dataBuffer)));
 var json2ab = (jsonData) => {
