@@ -21,15 +21,15 @@ describe('example', () => {
     window.dummyWorker.allExport();
     navigator.requestGPIOAccess().then(gpioAccess=> {
       console.log(gpioAccess)
-      var port = gpioAccess.ports.get(256);
-      expect(port.portNumber).toBe(256);
+      var port = gpioAccess.ports.get(283);
+      expect(port.portNumber).toBe(283);
       done();
     });
   });
   it('4.4 Activating a GPIO port and read the value (CHIRIMEN CN.1 pin2)', done=> {
     window.dummyWorker.allExport();
     navigator.requestGPIOAccess()
-      .then(gpioAccess=> gpioAccess.ports.get(256))
+      .then(gpioAccess=> gpioAccess.ports.get(283))
       .then(port=> new Promise((resolve,reject)=> port.export('in').then(()=> resolve(port)).catch(reject)))
       .then(port=> new Promise((resolve,reject)=> port.read().then(value=> resolve({ port: port, value: value })).catch(reject)))
       .then(args=>{
@@ -38,7 +38,7 @@ describe('example', () => {
       })
       .then(done)
       .catch(e=> expect(e.message).toBe('EXCEPTION'));
-    setTimeout(()=> window.WorkerOvserve.notify('gpio.getValue.256', { value: 1 }), 10);
+    setTimeout(()=> window.WorkerOvserve.notify('gpio.getValue.283', { value: 1 }), 10);
   });
   it('4.5 Listening to changes of a GPIO port value (CHIRIMEN CN.1 pin2)');
   it('4.6 Listening to changes of multiple GPIO port values (CHIRIMEN CN.1 pin2)');
