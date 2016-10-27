@@ -32,11 +32,11 @@ function I2CPort(portNumber) {
 
 I2CPort.prototype = {
   init: function (portNumber) {
+    this.portNumber = portNumber;
     window.WorkerOvserve.notify('i2c', {
       method: 'i2c.open',
       portNumber: this.portNumber,
     });
-    this.portNumber = portNumber;
   },
 
   /**
