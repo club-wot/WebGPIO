@@ -14,4 +14,18 @@ describe('GPIOAccess', () => {
       expect(gpio.ports).toEqual(jasmine.any(GPIOPortMap));
     });
   });
+
+  describe('chain calls', ()=>{
+    it('checked secance', done=> {
+      var testMock = val => {
+        window.WorkerOvserve.notify(`gpio.export.${val.portNumber}`, {});
+        if (val.portNumber === 353) {
+          window.WorkerOvserve.unobserve(`gpio`, testMock);
+          done();
+        };
+      };
+      window.WorkerOvserve.observe(`gpio`, testMock);
+      gpio = new GPIOAccess();
+    });
+  })
 });

@@ -2,7 +2,7 @@
 describe('GPIOPort', () => {
   var port;
   beforeEach(()=> {
-    port = new GPIOPort(256);
+    port = new GPIOPort(283);
   });
   describe('instance', () => {
     it('create', () => {
@@ -10,7 +10,7 @@ describe('GPIOPort', () => {
     });
   });
   describe('propaty(default)', () => {
-    it('portNumber', () => expect(port.portNumber).toBe(256));
+    it('portNumber', () => expect(port.portNumber).toBe(283));
     it('portName', () => expect(port.portName).toBe(''));
     it('pinName', () => expect(port.pinName).toBe(''));
     it('direction', () => expect(port.direction).toBe(''));
@@ -74,7 +74,7 @@ describe('GPIOPort', () => {
             expect(result).toBe(1);
             done();
           });
-        setTimeout(()=> window.WorkerOvserve.notify('gpio.getValue.256', { value: 1 }), 100);
+        setTimeout(()=> window.WorkerOvserve.notify('gpio.getValue.283', { value: 1 }), 100);
       });
     });
 
@@ -142,7 +142,7 @@ describe('GPIOPort', () => {
     it('change value to onchange event', done=>  {
       port.export('in')
         .then(()=> {
-          window.WorkerOvserve.notify('gpio.onchange.256', { value: 1 });
+          window.WorkerOvserve.notify('gpio.onchange.283', { value: 1 });
           expect(port.onchange).toHaveBeenCalled();
           expect(port.onchange).toHaveBeenCalledWith(1);
           done();

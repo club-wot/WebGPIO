@@ -9,11 +9,18 @@ GPIOAccess.prototype = {
   init: function (port) {
     this.ports = new GPIOPortMap();
     var convertToNumber = portStr => parseInt(portStr, 10);
-    var setPortMap = port=> this.ports.set(port, new GPIOPort(port));
-    /**
-    * @todo How to get the pin list?
-    ***/
-    Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).forEach(setPortMap);
+
+    var makeChain = port => ()=> new Promise(resolve=> {
+      window.WorkerOvserve.observe(`gpio.export.${port}`, () => resolve());
+      this.ports.set(port, new GPIOPort(port));
+    });
+
+    var exportChain = (chain, next) => chain.then(next);
+
+    this.GPIOAccessThen = Object.keys(PORT_CONFIG.CHIRIMEN.PORTS)
+      .map(convertToNumber)
+      .map(makeChain)
+      .reduce(exportChain, Promise.resolve());
   },
 
   /**

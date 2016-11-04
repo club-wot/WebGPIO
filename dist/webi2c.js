@@ -32,11 +32,11 @@ function I2CPort(portNumber) {
 
 I2CPort.prototype = {
   init: function (portNumber) {
+    this.portNumber = portNumber;
     window.WorkerOvserve.notify('i2c', {
       method: 'i2c.open',
       portNumber: this.portNumber,
     });
-    this.portNumber = portNumber;
   },
 
   /**
@@ -66,11 +66,6 @@ I2CPort.prototype = {
     });
   },
 };
-
-// document
-// https://rawgit.com/browserobo/WebI2C/master/index.html#I2CPortMap-interface)
-
-var I2CPortMap = Map;
 
 // https://rawgit.com/browserobo/WebI2C/master/index.html#I2CSlaveDevice-interface
 
@@ -225,6 +220,11 @@ I2CSlaveDevice.prototype = {
   },
 };
 
+// document
+// https://rawgit.com/browserobo/WebI2C/master/index.html#I2CPortMap-interface)
+
+var I2CPortMap = Map;
+
 /* istanbul ignore else */
 if (!navigator.requestI2CAccess) {
   navigator.requestI2CAccess = function () {
@@ -324,8 +324,6 @@ const PORT_CONFIG = {
   // https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0
   CHIRIMEN: {
     PORTS: {
-      256: { portName: 'CN1.I2C2_SDA', pinName: '2', },
-      257: { portName: 'CN1.I2C2_SCL', pinName: '3', },
       283: { portName: 'CN1.UART3_RX', pinName: '4', },
       284: { portName: 'CN1.UART3_TX', pinName: '5', },
       196: { portName: 'CN1.SPI0_CS',  pinName: '7', },
@@ -337,8 +335,6 @@ const PORT_CONFIG = {
       246: { portName: 'CN1.SPI1_RX',  pinName: '13', },
       245: { portName: 'CN1.SPI1_TX',  pinName: '14', },
       163: { portName: 'CN2.PWM0',     pinName: '10', },
-      253: { portName: 'CN2.I2C0_SCL', pinName: '11', },
-      252: { portName: 'CN2.I2C0_SDA', pinName: '12', },
       193: { portName: 'CN2.UART0_TX', pinName: '13', },
       192: { portName: 'CN2.UART0_RX', pinName: '14', },
       353: { portName: 'CN2.GPIO6_A1', pinName: '15', },

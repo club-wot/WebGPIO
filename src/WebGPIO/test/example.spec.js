@@ -1,5 +1,6 @@
 describe('example', () => {
   it('4.1 Getting Access to the GPIO', done=> {
+    window.dummyWorker.allExport();
     navigator.requestGPIOAccess().then(function(gpioAccess) {
       expect(gpioAccess).toEqual(jasmine.any(GPIOAccess));
       done();
@@ -7,6 +8,7 @@ describe('example', () => {
   });
   // @todo portName and pinName
   it('4.2 Listing GPIO ports (CHIRIMEN CN.1 pin2)', done=> {
+    window.dummyWorker.allExport();
     navigator.requestGPIOAccess().then(gpioAccess=> {
       expect(gpioAccess.ports).toEqual(jasmine.any(GPIOPortMap));
       done();
@@ -16,16 +18,18 @@ describe('example', () => {
   * @todo gpio.ports.get(18).then()
   **/
   it('4.3 Getting a GPIO port (CHIRIMEN CN.1 pin2)', done=> {
+    window.dummyWorker.allExport();
     navigator.requestGPIOAccess().then(gpioAccess=> {
-      var port = gpioAccess.ports.get(256);
-      expect(port.portNumber).toBe(256);
+      console.log(gpioAccess)
+      var port = gpioAccess.ports.get(283);
+      expect(port.portNumber).toBe(283);
       done();
     });
   });
   it('4.4 Activating a GPIO port and read the value (CHIRIMEN CN.1 pin2)', done=> {
-
+    window.dummyWorker.allExport();
     navigator.requestGPIOAccess()
-      .then(gpioAccess=> gpioAccess.ports.get(256))
+      .then(gpioAccess=> gpioAccess.ports.get(283))
       .then(port=> new Promise((resolve,reject)=> port.export('in').then(()=> resolve(port)).catch(reject)))
       .then(port=> new Promise((resolve,reject)=> port.read().then(value=> resolve({ port: port, value: value })).catch(reject)))
       .then(args=>{
@@ -34,7 +38,7 @@ describe('example', () => {
       })
       .then(done)
       .catch(e=> expect(e.message).toBe('EXCEPTION'));
-    setTimeout(()=> window.WorkerOvserve.notify('gpio.getValue.256', { value: 1 }), 10);
+    setTimeout(()=> window.WorkerOvserve.notify('gpio.getValue.283', { value: 1 }), 10);
   });
   it('4.5 Listening to changes of a GPIO port value (CHIRIMEN CN.1 pin2)');
   it('4.6 Listening to changes of multiple GPIO port values (CHIRIMEN CN.1 pin2)');

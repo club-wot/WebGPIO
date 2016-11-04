@@ -8,48 +8,6 @@ const IO = {
   HIGH: 1,
 };
 
-// document
-// https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
-
-var GPIOAccess = function (port) {
-  this.init(port);
-};
-
-GPIOAccess.prototype = {
-  init: function (port) {
-    this.ports = new GPIOPortMap();
-    var convertToNumber = portStr => parseInt(portStr, 10);
-    var setPortMap = port=> this.ports.set(port, new GPIOPort(port));
-    /**
-    * @todo How to get the pin list?
-    ***/
-    Object.keys(PORT_CONFIG.CHIRIMEN.PORTS).map(convertToNumber).forEach(setPortMap);
-  },
-
-  /**
-  * The ports attribute must return the GPIOPortMap object representing all of the GPIO ports available on the underlying operating system.
-  * @type {GPIOPortMap}
-  **/
-  ports: null,
-
-  /**
-  * Open issues: Is unexportAll necessary?
-  * @todo: During implementation
-  **/
-  unexportAll: null,
-
-  /**
-  * The onchange attribute is a event handler invoked when the value of one of the exported GPIO ports changes
-  * (i.e. the value changes from 1 to 0 or from 0 to 1). Whenever the event handler is to be invoked, the user agent must run the following steps:
-  *  1. Let port be the GPIOPort object.
-  *  2. Let port value be the value of the GPIO port corresponding to the GPIOPort.
-  *  3. Let event be a newly constructed GPIOChangeEvent, with the value attribute set to the port value, and the port attribute set to the port.
-  *  4. Fire an event named change at the GPIOAccess object, using the event as the event object.
-  * @todo: During implementation
-  **/
-  onchange: null,
-};
-
 
 
 // document
@@ -199,13 +157,13 @@ GPIOPort.prototype = {
     //var readGPIO = ()=> navigator.mozGpio.getValue(this.portNumber);
     var readGPIO = () => new Promise((resolve, reject) => {
 
+      window.WorkerOvserve.observe(`gpio.getValue.${this.portNumber}`, (workerData) => {
+        resolve(workerData.value);
+      });
+
       window.WorkerOvserve.notify('gpio', {
         method: 'gpio.getValue',
         portNumber: this.portNumber,
-      });
-
-      window.WorkerOvserve.observe(`gpio.getValue.${this.portNumber}`, (workerData) => {
-        resolve(workerData.value);
       });
 
     });
@@ -276,6 +234,55 @@ GPIOPort.prototype = {
 };
 
 // document
+// https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
+
+var GPIOAccess = function (port) {
+  this.init(port);
+};
+
+GPIOAccess.prototype = {
+  init: function (port) {
+    this.ports = new GPIOPortMap();
+    var convertToNumber = portStr => parseInt(portStr, 10);
+
+    var makeChain = port => ()=> new Promise(resolve=> {
+      window.WorkerOvserve.observe(`gpio.export.${port}`, () => resolve());
+      this.ports.set(port, new GPIOPort(port));
+    });
+
+    var exportChain = (chain, next) => chain.then(next);
+
+    this.GPIOAccessThen = Object.keys(PORT_CONFIG.CHIRIMEN.PORTS)
+      .map(convertToNumber)
+      .map(makeChain)
+      .reduce(exportChain, Promise.resolve());
+  },
+
+  /**
+  * The ports attribute must return the GPIOPortMap object representing all of the GPIO ports available on the underlying operating system.
+  * @type {GPIOPortMap}
+  **/
+  ports: null,
+
+  /**
+  * Open issues: Is unexportAll necessary?
+  * @todo: During implementation
+  **/
+  unexportAll: null,
+
+  /**
+  * The onchange attribute is a event handler invoked when the value of one of the exported GPIO ports changes
+  * (i.e. the value changes from 1 to 0 or from 0 to 1). Whenever the event handler is to be invoked, the user agent must run the following steps:
+  *  1. Let port be the GPIOPort object.
+  *  2. Let port value be the value of the GPIO port corresponding to the GPIOPort.
+  *  3. Let event be a newly constructed GPIOChangeEvent, with the value attribute set to the port value, and the port attribute set to the port.
+  *  4. Fire an event named change at the GPIOAccess object, using the event as the event object.
+  * @todo: During implementation
+  **/
+  onchange: null,
+};
+
+// document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPortMap-interface
 
 var GPIOPortMap = Map;
@@ -283,7 +290,10 @@ var GPIOPortMap = Map;
 /* istanbul ignore else */
 if (!navigator.requestGPIOAccess) {
   navigator.requestGPIOAccess = function () {
-    return new Promise(resolve=> resolve(new GPIOAccess()));
+    //return new Promise(resolve=> resolve(new GPIOAccess()));
+
+    var gpioAccess = new GPIOAccess();
+    return gpioAccess.GPIOAccessThen.then(()=> gpioAccess);
   };
 }
 
@@ -379,8 +389,6 @@ const PORT_CONFIG = {
   // https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0
   CHIRIMEN: {
     PORTS: {
-      256: { portName: 'CN1.I2C2_SDA', pinName: '2', },
-      257: { portName: 'CN1.I2C2_SCL', pinName: '3', },
       283: { portName: 'CN1.UART3_RX', pinName: '4', },
       284: { portName: 'CN1.UART3_TX', pinName: '5', },
       196: { portName: 'CN1.SPI0_CS',  pinName: '7', },
@@ -392,8 +400,6 @@ const PORT_CONFIG = {
       246: { portName: 'CN1.SPI1_RX',  pinName: '13', },
       245: { portName: 'CN1.SPI1_TX',  pinName: '14', },
       163: { portName: 'CN2.PWM0',     pinName: '10', },
-      253: { portName: 'CN2.I2C0_SCL', pinName: '11', },
-      252: { portName: 'CN2.I2C0_SDA', pinName: '12', },
       193: { portName: 'CN2.UART0_TX', pinName: '13', },
       192: { portName: 'CN2.UART0_RX', pinName: '14', },
       353: { portName: 'CN2.GPIO6_A1', pinName: '15', },
