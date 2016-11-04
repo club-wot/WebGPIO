@@ -75,7 +75,17 @@ I2CSlaveDevice.prototype = {
   },
 
   read16: function (readRegistar) {
-    return this.read8(readRegistar);
+    return new Promise((resolve, reject) => {
+
+      window.WorkerOvserve.notify('i2c', {
+        method: 'i2c.read',
+        portNumber: this.portNumber,
+        readRegistar: readRegistar,
+        aIsOctet: false,
+      });
+
+      window.WorkerOvserve.observe(`i2c.read.${this.portNumber}.${readRegistar}`, (data) => resolve(data.value));
+    });
   },
 
   /**
@@ -124,6 +134,19 @@ I2CSlaveDevice.prototype = {
   },
 
   write16: function (registerNumber, value) {
-    return this.write8(registerNumber, value);
+    return new Promise((resolve, reject) => {
+
+      window.WorkerOvserve.notify('i2c', {
+        method: 'i2c.write',
+        portNumber: this.portNumber,
+        registerNumber: registerNumber,
+        value: value,
+        aIsOctet: false,
+      });
+
+      window.WorkerOvserve.observe(`i2c.write.${this.portNumber}.${registerNumber}`, (data) => {
+        resolve(data.value);
+      });
+    });
   },
 };
