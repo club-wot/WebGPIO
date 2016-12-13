@@ -26,6 +26,18 @@ const PATHS = {
       src: [
         `${ROOT_DIRS.srcWORKER}/**/!(*spec|*mock).js`,
       ],
+      gpio:{
+        src:[
+          `${ROOT_DIRS.srcWORKER}/gpio/**/!(*spec|*mock).js`,
+          `${ROOT_DIRS.srcWORKER}/common/**/!(*spec|*mock).js`,
+        ],
+      },
+      i2c:{
+        src:[
+          `${ROOT_DIRS.srcWORKER}/i2c/**/!(*spec|*mock).js`,
+          `${ROOT_DIRS.srcWORKER}/common/**/!(*spec|*mock).js`,
+        ],
+      },
     },
   },
   test: {

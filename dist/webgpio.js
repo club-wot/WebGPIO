@@ -1,4 +1,35 @@
-(function(){const DIRECTION_MODE = {
+(function(){
+
+/* istanbul ignore next */
+if (window.Worker && window.WorkerOvserve) {
+
+  var current = (function () {
+    if (document.currentScript) {
+      return document.currentScript.src;
+    } else {
+      var scripts = document.getElementsByTagName('script'),
+      script = scripts[scripts.length - 1];
+      if (script.src) {
+        return script.src;
+      }
+    }
+  })();
+
+  var _worker = new Worker(`${current.substr(0, current.lastIndexOf('/'))}/worker.gpio.js`);
+
+  // @MEMO gpioとi2cのObserverを分けた意味は「まだ」特にない
+  window.WorkerOvserve.observe('gpio', function (jsonData) {
+    var ab = json2ab(jsonData);
+    _worker.postMessage(ab.buffer, [ab.buffer]);
+  });
+
+  _worker.onmessage = function (e) {
+    var data = ab2json(e.data);
+    window.WorkerOvserve.notify(data.method, data);
+  };
+}
+
+const DIRECTION_MODE = {
   IN: 'in',
   OUT: 'out',
 };
@@ -7,7 +38,6 @@ const IO = {
   LOW: 0,
   HIGH: 1,
 };
-
 
 
 // document
@@ -234,6 +264,22 @@ GPIOPort.prototype = {
 };
 
 // document
+// https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPortMap-interface
+
+var GPIOPortMap = Map;
+
+/* istanbul ignore else */
+if (!navigator.requestGPIOAccess) {
+  navigator.requestGPIOAccess = function () {
+    //return new Promise(resolve=> resolve(new GPIOAccess()));
+
+    var gpioAccess = new GPIOAccess();
+    return gpioAccess.GPIOAccessThen.then(()=> gpioAccess);
+  };
+}
+
+
+// document
 // https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
 
 var GPIOAccess = function (port) {
@@ -281,21 +327,6 @@ GPIOAccess.prototype = {
   **/
   onchange: null,
 };
-
-// document
-// https://rawgit.com/browserobo/WebGPIO/master/index.html#GPIOPortMap-interface
-
-var GPIOPortMap = Map;
-
-/* istanbul ignore else */
-if (!navigator.requestGPIOAccess) {
-  navigator.requestGPIOAccess = function () {
-    //return new Promise(resolve=> resolve(new GPIOAccess()));
-
-    var gpioAccess = new GPIOAccess();
-    return gpioAccess.GPIOAccessThen.then(()=> gpioAccess);
-  };
-}
 
 var ab2json = (dataBuffer) => JSON.parse(String.fromCharCode.apply(null, new Uint16Array(dataBuffer)));
 var json2ab = (jsonData) => {
@@ -350,40 +381,6 @@ window.WorkerOvserve = window.WorkerOvserve || (function () {
 
   return new Ovserve();
 })();
-
-/* istanbul ignore next */
-if (window.Worker) {
-
-  var current = (function () {
-    if (document.currentScript) {
-      return document.currentScript.src;
-    } else {
-      var scripts = document.getElementsByTagName('script'),
-      script = scripts[scripts.length - 1];
-      if (script.src) {
-        return script.src;
-      }
-    }
-  })();
-
-  var _worker = new Worker(`${current.substr(0, current.lastIndexOf('/'))}/worker.js`);
-
-  // @MEMO gpioとi2cのObserverを分けた意味は「まだ」特にない
-  window.WorkerOvserve.observe('gpio', function (jsonData) {
-    var ab = json2ab(jsonData);
-    _worker.postMessage(ab.buffer, [ab.buffer]);
-  });
-
-  window.WorkerOvserve.observe('i2c', function (jsonData) {
-    var ab = json2ab(jsonData);
-    _worker.postMessage(ab.buffer, [ab.buffer]);
-  });
-
-  _worker.onmessage = function (e) {
-    var data = ab2json(e.data);
-    window.WorkerOvserve.notify(data.method, data);
-  };
-}
 
 const PORT_CONFIG = {
   // https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0

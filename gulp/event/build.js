@@ -7,6 +7,6 @@ gulp.task('build', cb => runSequence(
   'test',
   'compless:gpio',
   'compless:i2c',
-  'compless:worker',
+  ['compless:worker_gpio', 'compless:worker_i2c'],
   cb
 ));

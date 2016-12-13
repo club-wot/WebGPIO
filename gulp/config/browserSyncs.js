@@ -39,8 +39,6 @@ const BROWSER_SYNC = {
         ROOT_DIRS.srcPOLYFILL,
       ],
       directory: true,
-
-      //index: 'webGPIO.html',
     },
   },
 };
