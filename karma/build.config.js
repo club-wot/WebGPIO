@@ -1,4 +1,3 @@
-import util from './util';
 import basic from './basic.config';
 
 const config = require('../gulp/config');
