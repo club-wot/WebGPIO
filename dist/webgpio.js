@@ -1,43 +1,138 @@
-(function(){
+(function(){var ab2json = (dataBuffer) => JSON.parse(String.fromCharCode.apply(null, new Uint16Array(dataBuffer)));
+var json2ab = (jsonData) => {
+  var strJson = JSON.stringify(jsonData);
+  var buf = new ArrayBuffer(strJson.length * 2);
+  var uInt8Array = new Uint16Array(buf);
+  for (var i = 0, strLen = strJson.length; i < strLen; i++) {
+    uInt8Array[i] = strJson.charCodeAt(i);
+  }
 
-/* istanbul ignore next */
-if (window.Worker && window.WorkerOvserve) {
+  return uInt8Array;
+};
 
-  var current = (function () {
-    if (document.currentScript) {
-      return document.currentScript.src;
-    } else {
-      var scripts = document.getElementsByTagName('script'),
-      script = scripts[scripts.length - 1];
-      if (script.src) {
-        return script.src;
-      }
-    }
-  })();
+/**
+ * @example setting ovserve function
+ *   global.MockOvserve.observe('xxxxx_xxxxx_xxxxx', function(updateJson){
+ *     stateCtrl.setJsonData(updateJson);
+ *   });
+ *
+ * @example nofify method (parameter single only)
+ *   global.MockOvserve.notify('xxxxx_xxxxx_xxxxx', { param: 'PARAM' });
+ **/
+window.WorkerOvserve = window.WorkerOvserve || (function () {
 
-  var _worker = new Worker(`${current.substr(0, current.lastIndexOf('/'))}/worker.gpio.js`);
+  function Ovserve() {
+    this._Map = new Map();
+  }
 
-  // @MEMO gpioとi2cのObserverを分けた意味は「まだ」特にない
-  window.WorkerOvserve.observe('gpio', function (jsonData) {
-    var ab = json2ab(jsonData);
-    _worker.postMessage(ab.buffer, [ab.buffer]);
-  });
-
-  _worker.onmessage = function (e) {
-    var data = ab2json(e.data);
-    window.WorkerOvserve.notify(data.method, data);
+  // set ovserver
+  Ovserve.prototype.observe = function (name, fnc) {
+    var funcs = this._Map.get(name) || [];
+    funcs.push(fnc);
+    this._Map.set(name, funcs);
   };
-}
 
-const DIRECTION_MODE = {
-  IN: 'in',
-  OUT: 'out',
+  // remove ovserver
+  Ovserve.prototype.unobserve = function (name, func) {
+    var funcs = this._Map.get(name) || [];
+    this._Map.set(name, funcs.filter(function (_func) {
+      return _func !== func;
+    }));
+  };
+
+  // notify ovserve
+  Ovserve.prototype.notify = function (name) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    /* istanbul ignore next */
+    (this._Map.get(name) || []).forEach(function (func, index) {
+      func.apply(null, args);
+    });
+  };
+
+  return new Ovserve();
+})();
+
+const PORT_CONFIG = {
+  // https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0
+  CHIRIMEN: {
+    PORTS: {
+      283: { portName: 'CN1.UART3_RX', pinName: '4', },
+      284: { portName: 'CN1.UART3_TX', pinName: '5', },
+      196: { portName: 'CN1.SPI0_CS',  pinName: '7', },
+      197: { portName: 'CN1.SPI0_CLK', pinName: '8', },
+      198: { portName: 'CN1.SPI0_RX',  pinName: '9', },
+      199: { portName: 'CN1.SPI0_TX',  pinName: '10', },
+      244: { portName: 'CN1.SPI1_CS',  pinName: '11', },
+      243: { portName: 'CN1.SPI1_CLK', pinName: '12', },
+      246: { portName: 'CN1.SPI1_RX',  pinName: '13', },
+      245: { portName: 'CN1.SPI1_TX',  pinName: '14', },
+      163: { portName: 'CN2.PWM0',     pinName: '10', },
+      193: { portName: 'CN2.UART0_TX', pinName: '13', },
+      192: { portName: 'CN2.UART0_RX', pinName: '14', },
+      353: { portName: 'CN2.GPIO6_A1', pinName: '15', },
+    },
+    I2C_PORTS: {
+        0: {
+          SDA: { portName: 'CN2.I2C0_SCL', pinName: '11', },
+          SCL: { portName: 'CN2.I2C0_SDA', pinName: '12', },
+        },
+        2: {
+          SDA: { portName: 'CN1.I2C2_SDA', pinName: '2', },
+          SCL: { portName: 'CN1.I2C2_SCL', pinName: '3', },
+        },
+      },
+  },
 };
 
-const IO = {
-  LOW: 0,
-  HIGH: 1,
+// document
+// https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
+
+var GPIOAccess = function (port) {
+  this.init(port);
 };
+
+GPIOAccess.prototype = {
+  init: function (port) {
+    this.ports = new GPIOPortMap();
+    var convertToNumber = portStr => parseInt(portStr, 10);
+
+    var makeChain = port => ()=> new Promise(resolve=> {
+      window.WorkerOvserve.observe(`gpio.export.${port}`, () => resolve());
+      this.ports.set(port, new GPIOPort(port));
+    });
+
+    var exportChain = (chain, next) => chain.then(next);
+
+    this.GPIOAccessThen = Object.keys(PORT_CONFIG.CHIRIMEN.PORTS)
+      .map(convertToNumber)
+      .map(makeChain)
+      .reduce(exportChain, Promise.resolve());
+  },
+
+  /**
+  * The ports attribute must return the GPIOPortMap object representing all of the GPIO ports available on the underlying operating system.
+  * @type {GPIOPortMap}
+  **/
+  ports: null,
+
+  /**
+  * Open issues: Is unexportAll necessary?
+  * @todo: During implementation
+  **/
+  unexportAll: null,
+
+  /**
+  * The onchange attribute is a event handler invoked when the value of one of the exported GPIO ports changes
+  * (i.e. the value changes from 1 to 0 or from 0 to 1). Whenever the event handler is to be invoked, the user agent must run the following steps:
+  *  1. Let port be the GPIOPort object.
+  *  2. Let port value be the value of the GPIO port corresponding to the GPIOPort.
+  *  3. Let event be a newly constructed GPIOChangeEvent, with the value attribute set to the port value, and the port attribute set to the port.
+  *  4. Fire an event named change at the GPIOAccess object, using the event as the event object.
+  * @todo: During implementation
+  **/
+  onchange: null,
+};
+
 
 
 // document
@@ -279,138 +374,43 @@ if (!navigator.requestGPIOAccess) {
 }
 
 
-// document
-// https://rawgit.com/browserobo/WebGPIO/master/index.html#navigator-gpio
 
-var GPIOAccess = function (port) {
-  this.init(port);
+/* istanbul ignore next */
+if (window.Worker && window.WorkerOvserve) {
+
+  var current = (function () {
+    if (document.currentScript) {
+      return document.currentScript.src;
+    } else {
+      var scripts = document.getElementsByTagName('script'),
+      script = scripts[scripts.length - 1];
+      if (script.src) {
+        return script.src;
+      }
+    }
+  })();
+
+  var _worker = new Worker(`${current.substr(0, current.lastIndexOf('/'))}/worker.gpio.js`);
+
+  // @MEMO gpioとi2cのObserverを分けた意味は「まだ」特にない
+  window.WorkerOvserve.observe('gpio', function (jsonData) {
+    var ab = json2ab(jsonData);
+    _worker.postMessage(ab.buffer, [ab.buffer]);
+  });
+
+  _worker.onmessage = function (e) {
+    var data = ab2json(e.data);
+    window.WorkerOvserve.notify(data.method, data);
+  };
+}
+
+const DIRECTION_MODE = {
+  IN: 'in',
+  OUT: 'out',
 };
 
-GPIOAccess.prototype = {
-  init: function (port) {
-    this.ports = new GPIOPortMap();
-    var convertToNumber = portStr => parseInt(portStr, 10);
-
-    var makeChain = port => ()=> new Promise(resolve=> {
-      window.WorkerOvserve.observe(`gpio.export.${port}`, () => resolve());
-      this.ports.set(port, new GPIOPort(port));
-    });
-
-    var exportChain = (chain, next) => chain.then(next);
-
-    this.GPIOAccessThen = Object.keys(PORT_CONFIG.CHIRIMEN.PORTS)
-      .map(convertToNumber)
-      .map(makeChain)
-      .reduce(exportChain, Promise.resolve());
-  },
-
-  /**
-  * The ports attribute must return the GPIOPortMap object representing all of the GPIO ports available on the underlying operating system.
-  * @type {GPIOPortMap}
-  **/
-  ports: null,
-
-  /**
-  * Open issues: Is unexportAll necessary?
-  * @todo: During implementation
-  **/
-  unexportAll: null,
-
-  /**
-  * The onchange attribute is a event handler invoked when the value of one of the exported GPIO ports changes
-  * (i.e. the value changes from 1 to 0 or from 0 to 1). Whenever the event handler is to be invoked, the user agent must run the following steps:
-  *  1. Let port be the GPIOPort object.
-  *  2. Let port value be the value of the GPIO port corresponding to the GPIOPort.
-  *  3. Let event be a newly constructed GPIOChangeEvent, with the value attribute set to the port value, and the port attribute set to the port.
-  *  4. Fire an event named change at the GPIOAccess object, using the event as the event object.
-  * @todo: During implementation
-  **/
-  onchange: null,
-};
-
-var ab2json = (dataBuffer) => JSON.parse(String.fromCharCode.apply(null, new Uint16Array(dataBuffer)));
-var json2ab = (jsonData) => {
-  var strJson = JSON.stringify(jsonData);
-  var buf = new ArrayBuffer(strJson.length * 2);
-  var uInt8Array = new Uint16Array(buf);
-  for (var i = 0, strLen = strJson.length; i < strLen; i++) {
-    uInt8Array[i] = strJson.charCodeAt(i);
-  }
-
-  return uInt8Array;
-};
-
-/**
- * @example setting ovserve function
- *   global.MockOvserve.observe('xxxxx_xxxxx_xxxxx', function(updateJson){
- *     stateCtrl.setJsonData(updateJson);
- *   });
- *
- * @example nofify method (parameter single only)
- *   global.MockOvserve.notify('xxxxx_xxxxx_xxxxx', { param: 'PARAM' });
- **/
-window.WorkerOvserve = window.WorkerOvserve || (function () {
-
-  function Ovserve() {
-    this._Map = new Map();
-  }
-
-  // set ovserver
-  Ovserve.prototype.observe = function (name, fnc) {
-    var funcs = this._Map.get(name) || [];
-    funcs.push(fnc);
-    this._Map.set(name, funcs);
-  };
-
-  // remove ovserver
-  Ovserve.prototype.unobserve = function (name, func) {
-    var funcs = this._Map.get(name) || [];
-    this._Map.set(name, funcs.filter(function (_func) {
-      return _func !== func;
-    }));
-  };
-
-  // notify ovserve
-  Ovserve.prototype.notify = function (name) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    /* istanbul ignore next */
-    (this._Map.get(name) || []).forEach(function (func, index) {
-      func.apply(null, args);
-    });
-  };
-
-  return new Ovserve();
-})();
-
-const PORT_CONFIG = {
-  // https://docs.google.com/spreadsheets/d/1pVgK-Yy09p9PPgNgojQNLvsPjDFAOjOubgNsNYEQZt8/edit#gid=0
-  CHIRIMEN: {
-    PORTS: {
-      283: { portName: 'CN1.UART3_RX', pinName: '4', },
-      284: { portName: 'CN1.UART3_TX', pinName: '5', },
-      196: { portName: 'CN1.SPI0_CS',  pinName: '7', },
-      197: { portName: 'CN1.SPI0_CLK', pinName: '8', },
-      198: { portName: 'CN1.SPI0_RX',  pinName: '9', },
-      199: { portName: 'CN1.SPI0_TX',  pinName: '10', },
-      244: { portName: 'CN1.SPI1_CS',  pinName: '11', },
-      243: { portName: 'CN1.SPI1_CLK', pinName: '12', },
-      246: { portName: 'CN1.SPI1_RX',  pinName: '13', },
-      245: { portName: 'CN1.SPI1_TX',  pinName: '14', },
-      163: { portName: 'CN2.PWM0',     pinName: '10', },
-      193: { portName: 'CN2.UART0_TX', pinName: '13', },
-      192: { portName: 'CN2.UART0_RX', pinName: '14', },
-      353: { portName: 'CN2.GPIO6_A1', pinName: '15', },
-    },
-    I2C_PORTS: {
-        0: {
-          SDA: { portName: 'CN2.I2C0_SCL', pinName: '11', },
-          SCL: { portName: 'CN2.I2C0_SDA', pinName: '12', },
-        },
-        2: {
-          SDA: { portName: 'CN1.I2C2_SDA', pinName: '2', },
-          SCL: { portName: 'CN1.I2C2_SCL', pinName: '3', },
-        },
-      },
-  },
+const IO = {
+  LOW: 0,
+  HIGH: 1,
 };
 })()

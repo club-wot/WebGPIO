@@ -12,14 +12,14 @@ const PATHS = {
     ],
     gpio:{
       src: [
-        `${ROOT_DIRS.srcGPIO}/**/!(*spec|*mock).js`,
         `${ROOT_DIRS.srcCOMMON}/**/!(*spec|*mock).js`,
+        `${ROOT_DIRS.srcGPIO}/**/!(*spec|*mock).js`,
       ],
     },
     i2c:{
       src: [
-        `${ROOT_DIRS.srcI2C}/**/!(*spec|*mock).js`,
         `${ROOT_DIRS.srcCOMMON}/**/!(*spec|*mock).js`,
+        `${ROOT_DIRS.srcI2C}/**/!(*spec|*mock).js`,
       ],
     },
     worker: {
