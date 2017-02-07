@@ -18,5 +18,10 @@ describe('WorkerOvserve', () => {
       WorkerOvserve.unobserve('WorkerOvserve.test.unobserve.1', v1f);
       WorkerOvserve.notify('WorkerOvserve.test.unobserve.1', {});
       WorkerOvserve.notify('WorkerOvserve.test.unobserve.2', {});
+
+      // @@@@@
+      WorkerOvserve.observe('WorkerOvserve.test.unobserve.3', v2f);
+      WorkerOvserve.delete('WorkerOvserve.test.unobserve.3');
+
     });
 });

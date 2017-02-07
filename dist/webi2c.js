@@ -49,6 +49,12 @@ window.WorkerOvserve = window.WorkerOvserve || (function () {
     });
   };
 
+  // delete map
+  // delete
+  Ovserve.prototype.delete = function (name) {
+    this._Map.delete(name);
+  };
+
   return new Ovserve();
 })();
 
@@ -148,7 +154,11 @@ I2CPort.prototype = {
   **/
   open: function (slaveAddress) {
     return new Promise((resolve, reject)=> {
-      resolve(new I2CSlaveDevice(this.portNumber, slaveAddress));
+      new I2CSlaveDevice(this.portNumber, slaveAddress).then((i2cslave) => {
+        resolve(i2cslave);
+      }, (err) => {
+        reject(err);
+      });
     });
   },
 };
@@ -164,24 +174,53 @@ var I2CPortMap = Map;
 // https://github.com/browserobo/WebI2C/blob/master/implementations/Gecko/test-i2c/js/WebI2C.js
 
 function I2CSlaveDevice(portNumber, slaveAddress) {
-  this.init(portNumber, slaveAddress);
+  return new Promise((resolve, reject)=> {
+    this.init(portNumber, slaveAddress).then(() => {
+      resolve(this);
+    }, (err) => {
+      reject(err);
+    });
+  });
 }
 
 I2CSlaveDevice.prototype = {
   init: function (portNumber, slaveAddress) {
-    this.portNumber = portNumber;
-    this.slaveAddress = slaveAddress;
+    return new Promise((resolve, reject) => {
 
-    window.WorkerOvserve.notify('i2c', {
-      method: 'i2c.setDeviceAddress',
-      portNumber: this.portNumber,
-      slaveAddress: this.slaveAddress,
-    });
+      this.portNumber = portNumber;
+      this.slaveAddress = slaveAddress;
 
-    window.WorkerOvserve.observe(`i2c.setDeviceAddress.${this.portNumber}`, (data) => {
-      this.slaveDevice = data.slaveDevice;
+      window.WorkerOvserve.notify('i2c', {
+        method: 'i2c.setDeviceAddress',
+        portNumber: this.portNumber,
+        slaveAddress: this.slaveAddress,
+      });
+
+      window.WorkerOvserve.observe(`i2c.setDeviceAddress.${this.portNumber}`, (data) => {
+        if (!data.error) {
+          this.slaveDevice = data.slaveDevice;
+          resolve(data.slaveDevice);
+        }else {
+          console.log('i2c.setDeviceAddress: error name:[' + data.error.name + ']');
+          reject(data.error);
+        }
+
+        window.WorkerOvserve.delete(`i2c.setDeviceAddress.${this.portNumber}`);
+      });
     });
   },
+
+  getXid: function () {
+    this.xid++;
+    if (this.xid > 999) {
+      this.xid = 0;
+    }
+
+    return this.xid;
+  },
+
+  // Transaction ID
+  xid: 0,
 
   /**
   * @private
@@ -223,28 +262,54 @@ I2CSlaveDevice.prototype = {
   read8: function (readRegistar) {
     return new Promise((resolve, reject) => {
 
+      var transactionID = this.getXid();
+
       window.WorkerOvserve.notify('i2c', {
         method: 'i2c.read',
+        xid: transactionID,
         portNumber: this.portNumber,
+        slaveAddress: this.slaveAddress,
         readRegistar: readRegistar,
         aIsOctet: true,
       });
 
-      window.WorkerOvserve.observe(`i2c.read.${this.portNumber}.${readRegistar}`, (data) => resolve(data.value));
+      window.WorkerOvserve.observe(`i2c.read.${transactionID}.${this.portNumber}.${this.slaveAddress}.${readRegistar}`, (data) => {
+        if (!data.error) {
+          resolve(data.value);
+        }else {
+          console.log('i2c.read8: error name:[' + data.error.name + ']');
+          reject(data.error);
+        }
+
+        window.WorkerOvserve.delete(`i2c.read.${transactionID}.${this.portNumber}.${this.slaveAddress}.${readRegistar}`);
+      });
     });
   },
 
   read16: function (readRegistar) {
     return new Promise((resolve, reject) => {
 
+      var transactionID = this.getXid();
+
       window.WorkerOvserve.notify('i2c', {
         method: 'i2c.read',
+        xid: transactionID,
         portNumber: this.portNumber,
+        slaveAddress: this.slaveAddress,
         readRegistar: readRegistar,
         aIsOctet: false,
       });
 
-      window.WorkerOvserve.observe(`i2c.read.${this.portNumber}.${readRegistar}`, (data) => resolve(data.value));
+      window.WorkerOvserve.observe(`i2c.read.${transactionID}.${this.portNumber}.${this.slaveAddress}.${readRegistar}`, (data) => {
+        if (!data.error) {
+          resolve(data.value);
+        }else {
+          console.log('i2c.read16: error name:[' + data.error.name + ']');
+          reject(data.error);
+        }
+
+        window.WorkerOvserve.delete(`i2c.read.${transactionID}.${this.portNumber}.${this.slaveAddress}.${readRegistar}`);
+      });
     });
   },
 
@@ -279,16 +344,27 @@ I2CSlaveDevice.prototype = {
   write8: function (registerNumber, value) {
     return new Promise((resolve, reject) => {
 
+      var transactionID = this.getXid();
+
       window.WorkerOvserve.notify('i2c', {
         method: 'i2c.write',
+        xid: transactionID,
         portNumber: this.portNumber,
+        slaveAddress: this.slaveAddress,
         registerNumber: registerNumber,
         value: value,
         aIsOctet: true,
       });
 
-      window.WorkerOvserve.observe(`i2c.write.${this.portNumber}.${registerNumber}`, (data) => {
-        resolve(data.value);
+      window.WorkerOvserve.observe(`i2c.write.${transactionID}.${this.portNumber}.${this.slaveAddress}.${registerNumber}`, (data) => {
+        if (!data.error) {
+          resolve(data.value);
+        }else {
+          console.log('i2c.write8: error name:[' + data.error.name + ']');
+          reject(data.error);
+        }
+
+        window.WorkerOvserve.delete(`i2c.write.${transactionID}.${this.portNumber}.${this.slaveAddress}.${registerNumber}`);
       });
     });
   },
@@ -296,16 +372,27 @@ I2CSlaveDevice.prototype = {
   write16: function (registerNumber, value) {
     return new Promise((resolve, reject) => {
 
+      var transactionID = this.getXid();
+
       window.WorkerOvserve.notify('i2c', {
         method: 'i2c.write',
+        xid: transactionID,
         portNumber: this.portNumber,
+        slaveAddress: this.slaveAddress,
         registerNumber: registerNumber,
         value: value,
         aIsOctet: false,
       });
 
-      window.WorkerOvserve.observe(`i2c.write.${this.portNumber}.${registerNumber}`, (data) => {
-        resolve(data.value);
+      window.WorkerOvserve.observe(`i2c.write.${transactionID}.${this.portNumber}.${this.slaveAddress}.${registerNumber}`, (data) => {
+        if (!data.error) {
+          resolve(data.value);
+        }else {
+          console.log('i2c.write16: error name:[' + data.error.name + ']');
+          reject(data.error);
+        }
+
+        window.WorkerOvserve.delete(`i2c.write.${transactionID}.${this.portNumber}.${this.slaveAddress}.${registerNumber}`);
       });
     });
   },

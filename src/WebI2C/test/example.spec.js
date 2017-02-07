@@ -29,38 +29,47 @@ describe('example', () => {
         expect(slaveDevice).toEqual(jasmine.any(I2CSlaveDevice));
         done();
       });
+    setTimeout(()=> {
+      window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice!' });
+    }, 10);
   });
   it('4.6 Reading the value', done=> {
     navigator.requestI2CAccess()
       .then(I2C => I2C.ports.get(2))
-      .then(port => port.open(0x40))
-      .then(slaveDevice=> slaveDevice.read8(0x41))
-      .then(value=> {
-        expect(value).toBe(100);
-        done();
-      }).catch(e => console.log(e.message));
-    window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice!' });
-
+      .then(port => {
+        port.open(0x40).then(slaveDevice=> {
+          slaveDevice.xid = 0;
+          setTimeout(()=> {
+            window.WorkerOvserve.notify('i2c.read.1.2.64.65', { value: 100 });
+          }, 30);
+          slaveDevice.read8(0x41).then(value=> {
+            expect(value).toBe(100);
+            done();
+          });
+        });
+      });
     setTimeout(()=> {
-      window.WorkerOvserve.notify('i2c.read.2.65', { value: 100 });
-    }, 500);
-
+      window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice!' });
+    }, 30);
   });
   it('[T.B.D] 4.7 Listening to changes of a spefific I2C slave device');
   it('4.8 Writing a value', done=> {
     navigator.requestI2CAccess()
       .then(I2C => I2C.ports.get(2))
       .then(port => port.open(0x40))
-      .then(slaveDevice=> slaveDevice.write8(0x41, 0x42))
-      .then(value=> {
-        expect(value).toBe(66);
-        done();
-      }).catch(e=> console.log(e.message));
-
-    window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice!' });
-
+      .then(slaveDevice=> {
+        slaveDevice.xid = 3;
+        setTimeout(()=> {
+          window.WorkerOvserve.notify('i2c.write.4.2.64.65', { value: 66 });
+        }, 30);
+        slaveDevice.write8(0x41, 0x42).then(value=> {
+          expect(value).toBe(66);
+          done();
+        });
+      })
     setTimeout(()=> {
-      window.WorkerOvserve.notify('i2c.write.2.65', { value: 66 });
-    }, 500);
+      window.WorkerOvserve.notify('i2c.setDeviceAddress.2', { slaveDevice: 'slaveDevice!' });
+    },30);
+
   });
 });

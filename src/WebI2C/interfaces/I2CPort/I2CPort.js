@@ -36,7 +36,11 @@ I2CPort.prototype = {
   **/
   open: function (slaveAddress) {
     return new Promise((resolve, reject)=> {
-      resolve(new I2CSlaveDevice(this.portNumber, slaveAddress));
+      new I2CSlaveDevice(this.portNumber, slaveAddress).then((i2cslave) => {
+        resolve(i2cslave);
+      }, (err) => {
+        reject(err);
+      });
     });
   },
 };

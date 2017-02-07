@@ -49,6 +49,12 @@ window.WorkerOvserve = window.WorkerOvserve || (function () {
     });
   };
 
+  // delete map
+  // delete
+  Ovserve.prototype.delete = function (name) {
+    this._Map.delete(name);
+  };
+
   return new Ovserve();
 })();
 

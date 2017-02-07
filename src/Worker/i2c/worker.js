@@ -10,7 +10,17 @@ function i2cOnMessage(e) {
       navigator.mozI2c.open(data.portNumber);
       break;
     case 'i2c.setDeviceAddress':
-      var slaveDevice = navigator.mozI2c.setDeviceAddress(data.portNumber, data.slaveAddress);
+      try {
+        var slaveDevice = navigator.mozI2c.setDeviceAddress(data.portNumber, data.slaveAddress);
+      }catch (err) {
+        postMessage(json2abWorker({
+          method: `${data.method}.${data.portNumber}`,
+          portNumber: data.portNumber,
+          error: { name:err.name, message:err.message },
+        }));
+        break;
+      }
+
       postMessage(json2abWorker({
         method: `${data.method}.${data.portNumber}`,
         portNumber: data.portNumber,
@@ -18,22 +28,40 @@ function i2cOnMessage(e) {
       }));
       break;
     case 'i2c.write':
-      var value = navigator.mozI2c.write(data.portNumber, data.registerNumber, data.value, data.aIsOctet);
+      try {
+        var value = navigator.mozI2c.write(data.portNumber, data.slaveAddress, data.registerNumber, data.value, data.aIsOctet);
+      }catch (err) {
+        postMessage(json2abWorker({
+          method: `${data.method}.${data.xid}.${data.portNumber}.${data.slaveAddress}.${data.registerNumber}`,
+          portNumber: data.portNumber,
+          error: { name:err.name, message:err.message },
+        }));
+        break;
+      }
+
       postMessage(json2abWorker({
-        method: `${data.method}.${data.portNumber}.${data.registerNumber}`,
+        method: `${data.method}.${data.xid}.${data.portNumber}.${data.slaveAddress}.${data.registerNumber}`,
         portNumber: data.portNumber,
         value: value,
       }));
       break;
     case 'i2c.read':
-      Promise.resolve(navigator.mozI2c.read(data.portNumber, data.readRegistar, data.aIsOctet)).then((value)=> {
+      try {
+        var value = navigator.mozI2c.read(data.portNumber, data.slaveAddress, data.readRegistar, data.aIsOctet);
+      }catch (err) {
         postMessage(json2abWorker({
-          method: `${data.method}.${data.portNumber}.${data.readRegistar}`,
+          method: `${data.method}.${data.xid}.${data.portNumber}.${data.slaveAddress}.${data.readRegistar}`,
           portNumber: data.portNumber,
-          value: value,
+          error: { name:err.name, message:err.message },
         }));
-      });
+        break;
+      }
 
+      postMessage(json2abWorker({
+        method: `${data.method}.${data.xid}.${data.portNumber}.${data.slaveAddress}.${data.readRegistar}`,
+        portNumber: data.portNumber,
+        value: value,
+      }));
       break;
     default:
       throw 'Unexpected case to worker method';
