@@ -11,9 +11,9 @@ describe('worker.onmessage', () => {
   describe('i2c', ()=>{
     beforeEach(()=>{
       navigator.mozI2c.open = jasmine.createSpy();
-      navigator.mozI2c.setDeviceAddress = jasmine.createSpy();
-      navigator.mozI2c.write = jasmine.createSpy();
-      navigator.mozI2c.read = jasmine.createSpy().and.returnValue(Promise.resolve(1));
+//      navigator.mozI2c.setDeviceAddress = jasmine.createSpy();
+//      navigator.mozI2c.write = jasmine.createSpy();
+//      navigator.mozI2c.read = jasmine.createSpy().and.returnValue(Promise.resolve(1));
     });
     it('i2c.open', ()=>{
       onmessage(createMessageEvent({
@@ -23,46 +23,98 @@ describe('worker.onmessage', () => {
       expect(navigator.mozI2c.open).toHaveBeenCalled();
       expect(navigator.mozI2c.open).toHaveBeenCalledWith(256);
     });
-    it('i2c.setDeviceAddress', ()=>{
+
+    it('i2c.setDeviceAddress().success', ()=>{
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.setDeviceAddress.256', portNumber: 256 });
+        var data = ab2jsonWorker(value);
+        expect(data.method).toEqual('i2c.setDeviceAddress.2');
+        expect(data.portNumber).toEqual(2);
       };
       onmessage(createMessageEvent({
         method: 'i2c.setDeviceAddress',
-        portNumber: 256,
+        portNumber: 2,
         slaveAddress: 0x40,
       }));
-      expect(navigator.mozI2c.setDeviceAddress).toHaveBeenCalled();
-      expect(navigator.mozI2c.setDeviceAddress).toHaveBeenCalledWith(256, 64);
     });
-    it('i2c.write', ()=>{
+    it('i2c.setDeviceAddress().error', ()=>{
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.write.256.65', portNumber: 256 });
+        var data = ab2jsonWorker(value);
+        expect(data.method).toEqual('i2c.setDeviceAddress.256');
+        expect(data.portNumber).toEqual(256);
+        expect(data.error).not.toBeUndefined();
+      };
+      onmessage(createMessageEvent({
+        method: 'i2c.setDeviceAddress',
+        portNumber: 256,  // out of range
+        slaveAddress: 0x40,
+      }));
+    });
+
+    it('i2c.write().success', ()=>{
+      window.postMessage = (value)=>{
+        var data = ab2jsonWorker(value);
+        expect(data.method).toEqual('i2c.write.0.2.32.65');
+        expect(data.portNumber).toEqual(2);
       };
       onmessage(createMessageEvent({
         method: 'i2c.write',
-        portNumber: 256,
-        registerNumber: 0x41,
+        xid: 0,
+        portNumber: 2,
+        slaveAddress: 0x20,
+        registerNumber: 65,
         value: 0x42,
         aIsOctet: true,
       }));
-      expect(navigator.mozI2c.write).toHaveBeenCalled();
-      expect(navigator.mozI2c.write).toHaveBeenCalledWith(256, 65, 66, true);
     });
-    it('i2c.read', done=>{
+    it('i2c.write().error', ()=>{
       window.postMessage = (value)=>{
-        expect(ab2jsonWorker(value)).toEqual({ method: 'i2c.read.256.67', portNumber: 256, value: 1 });
-        done();
+        var data = ab2jsonWorker(value);
+        expect(data.method).toEqual('i2c.write.1.2.255.65');
+        expect(data.portNumber).toEqual(2);
+      };
+      onmessage(createMessageEvent({
+        method: 'i2c.write',
+        xid: 1,
+        portNumber: 2,
+        slaveAddress: 0xff, // out of range
+        registerNumber: 65,
+        value: 0x42,
+        aIsOctet: true,
+      }));
+    });
+
+    it('i2c.read().success', ()=>{
+      window.postMessage = (value)=>{
+        var data = ab2jsonWorker(value);
+        expect(data.method).toEqual('i2c.read.2.2.33.67');
+        expect(data.portNumber).toEqual(2);
       };
       onmessage(createMessageEvent({
         method: 'i2c.read',
-        portNumber: 256,
+        xid: 2,
+        portNumber: 2,
+        slaveAddress: 0x21,
         readRegistar: 0x43,
         aIsOctet: true,
       }));
-      expect(navigator.mozI2c.read).toHaveBeenCalled();
-      expect(navigator.mozI2c.read).toHaveBeenCalledWith(256, 67, true);
     });
+
+    it('i2c.read().error', ()=>{
+      window.postMessage = (value)=>{
+        var data = ab2jsonWorker(value);
+        expect(data.method).toEqual('i2c.read.2.8.33.67');
+        expect(data.portNumber).toEqual(8);
+      };
+      onmessage(createMessageEvent({
+        method: 'i2c.read',
+        xid: 2,
+        portNumber: 8,  // out of range
+        slaveAddress: 0x21, 
+        readRegistar: 0x43,
+        aIsOctet: true,
+      }));
+    });
+
   });
   it('other pattern', ()=>{
     expect(()=>{

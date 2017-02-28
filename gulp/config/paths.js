@@ -28,12 +28,14 @@ const PATHS = {
       ],
       gpio:{
         src:[
+          `${ROOT_DIRS.srcWORKER}/polyfill/mozGpio/**/!(*spec|*mock).js`,
           `${ROOT_DIRS.srcWORKER}/gpio/**/!(*spec|*mock).js`,
           `${ROOT_DIRS.srcWORKER}/common/**/!(*spec|*mock).js`,
         ],
       },
       i2c:{
         src:[
+          `${ROOT_DIRS.srcWORKER}/polyfill/mozI2c/**/!(*spec|*mock).js`,
           `${ROOT_DIRS.srcWORKER}/i2c/**/!(*spec|*mock).js`,
           `${ROOT_DIRS.srcWORKER}/common/**/!(*spec|*mock).js`,
         ],
