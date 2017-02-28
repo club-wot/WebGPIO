@@ -424,11 +424,6 @@ if (window.Worker && window.WorkerOvserve) {
   var _worker = new Worker(`${current.substr(0, current.lastIndexOf('/'))}/worker.i2c.js`);
 
   // @MEMO gpioとi2cのObserverを分けた意味は「まだ」特にない
-  window.WorkerOvserve.observe('gpio', function (jsonData) {
-    var ab = json2ab(jsonData);
-    _worker.postMessage(ab.buffer, [ab.buffer]);
-  });
-
   window.WorkerOvserve.observe('i2c', function (jsonData) {
     var ab = json2ab(jsonData);
     _worker.postMessage(ab.buffer, [ab.buffer]);
