@@ -3,7 +3,7 @@
 |service|status|
 |:--|:--|
 | Build Status |[![Build Status](https://travis-ci.org/club-wot/WebGPIO.svg)](https://travis-ci.org/club-wot/WebGPIO) |
-| Dependency Status |[![Dependency Status](https://gemnasium.com/club-wot/WebGPIO.svg)](https://gemnasium.com/club-wot/WebGPIO)|
+| Dependency Status |[![Dependency Status](https://gemnasium.com/badges/github.com/chirimen-oh/WebGPIO.svg)](https://gemnasium.com/github.com/chirimen-oh/WebGPIO)|
 | Code Covoiturage|[![Coverage Status](https://coveralls.io/repos/github/club-wot/WebGPIO/badge.svg?branch=draft-20160125)](https://coveralls.io/github/club-wot/WebGPIO?branch=draft-20160125)|
 
 WebGPIO and WebI2C API polyfill (Chirimen dedicated)
